@@ -1,0 +1,19 @@
+{
+  "name": "xybot",
+  "version": "2.0.0",
+  "author": "fightjc",
+  "description": "",
+  "scripts": {
+    "dev": "ts-node ./src/app.ts"
+  },
+  "dependencies": {
+    "@types/node": "^18.15.0",
+    "log4js": "^6.8.0",
+    "oicq": "^2.3.1",
+    "redis": "^4.6.5",
+    "ts-node": "^10.9.1",
+    "tslib": "^2.5.0",
+    "typescript": "^4.9.5",
+    "yaml": "^2.2.1"
+  }
+}
