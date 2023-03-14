@@ -11,6 +11,6 @@ export default class OfflineEvent extends BaseEvent {
   }
 
   async execute(event) {
-    logger.info('qq下线了');
+    global.logger.info('qq下线了');
   }
 }

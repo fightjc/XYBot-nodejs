@@ -11,8 +11,6 @@ export default class NoticeEvent extends BaseEvent {
   }
 
   async execute(event) {
-    global.logger.info(`收到通知: ${JSON.stringify(event)}`);
-
     global.pluginLoader.handle(event);
   }
 }

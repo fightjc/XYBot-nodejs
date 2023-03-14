@@ -11,8 +11,6 @@ export default class RequestEvent extends BaseEvent {
   }
 
   async execute(event) {
-    global.logger.info(`收到请求: ${JSON.stringify(event)}`);
-
     global.pluginLoader.handle(event);
   }
 }
