@@ -9,9 +9,9 @@ module.exports = {
       // min_uptime: "1000",
       interpreter: "./node_modules/.bin/ts-node",
       // interpreter_args: "-r tsconfig-paths/register",
-      // exec_mode: "fork",
-      // instances: 1,
-      // autorestart: false
+      exec_mode: "fork",
+      instances: 1,
+      autorestart: false
     }
   ]
 }

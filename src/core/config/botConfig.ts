@@ -48,6 +48,13 @@ export class BotConfig {
       };
       FileUtil.createDir('config');
       FileUtil.writeYAML(this.filename, data);
+
+      if (global.logger) {
+        global.logger.info(`请修改配置文件 ${this.filename}.yml 后再次运行程序`);
+      } else {
+        console.log(`请修改配置文件 ${this.filename}.yml 后再次运行程序`);
+      }
+      process.exit();
     }
 
     const settings: BotData = FileUtil.loadYAML(this.filename);
