@@ -48,7 +48,7 @@ export default class BasePlugin implements BasePluginInterface {
   }
 
   public checkPermission(event: any, rule: RuleData): boolean {
-    if (rule.permission || rule.permission == 'everyone') {
+    if (!rule.permission || rule.permission == 'everyone') {
       return true;
     }
 

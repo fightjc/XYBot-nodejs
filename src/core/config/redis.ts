@@ -13,6 +13,10 @@ type RedisConfig = {
 interface RedisInterface {
   getString(key: string): Promise<string>;
   setString(key: string, value: any, timeout?: number): Promise<void>;
+  getHash(key: string): Promise<object>;
+  setHash(key: string, obj: any, timeout?: number): Promise<void>;
+  getHashField(key: string, field: any): Promise<string>;
+  setHashField(key: string, field: string, value: string): Promise<void>;
   setTimeout(key: string, time: number): Promise<void>;
   deleteKey(key: string | string[]): Promise<void>;
   close(): Promise<void>;
@@ -111,17 +115,37 @@ export class Redis implements RedisInterface {
     }
   }
 
+  public async getHash(key: string): Promise<object> {
+    return await this.client.hGetAll(key) ?? {};
+  }
+
+  public async setHash(key: string, obj: any, timeout?: number): Promise<void> {
+    if (timeout === undefined) {
+      await this.client.hSet(key, obj);
+    } else {
+      await this.client.hSet(key, obj, 'EX', timeout);
+    }
+  }
+
+  public async getHashField(key: string, field: any): Promise<string> {
+    return await this.client.hGet(key, field) ?? '';
+  }
+
+	public async setHashField(key: string, field: string, value: string): Promise<void> {
+		await this.client.hSet(key, field, value);
+	}
+
   public async setTimeout(key: string, time: number): Promise<void> {
-    this.client.expire(key, time);
+    await this.client.expire(key, time);
   }
 
   public async deleteKey(key: string | string[]): Promise<void> {
     if (Array.isArray(key)) {
       for (let k of key) {
-        this.client.del(k);
+        await this.client.del(k);
       }
     } else {
-      this.client.del(key);
+      await this.client.del(key);
     }
   }
 

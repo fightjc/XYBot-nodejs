@@ -11,6 +11,11 @@ interface SwitcherInterface {
    */
   load(): Promise<void>;
   /**
+   * 是否匹配开关插件
+   * @param event 事件
+   */
+  matchReg(event: any): boolean;
+  /**
    * 改变群插件激活状态
    * @param groupId 群Id
    * @param name 插件名称
@@ -18,18 +23,34 @@ interface SwitcherInterface {
    */
   change(groupId: string, name: string, enable: boolean): Promise<void>;
   /**
-   * 监测收到事件的群是否开启插件
+   * 检测收到事件的群是否开启插件
    * @param groupId 群Id
    * @param name 插件名称
    */
-  checkEnable(groupId: string, name: string): Promise<boolean>
+  checkEnabled(groupId: string, name: string): Promise<boolean>;
 }
 
 export class Switcher implements SwitcherInterface {
-  private REDIS_KEY_PREFIX: string = 'xybot:group:';
+  private readonly REDIS_KEY_PREFIX: string = 'xybot:switcher:';
+  private readonly SWITCH_REG = '^开关\\s+\\w+';
 
-  constructor() {
+  constructor() {}
 
+  public matchReg(event: any): boolean {
+    if (event.post_type == 'message') {
+      return false;
+    }
+
+    if (!new RegExp(this.SWITCH_REG).test(event.raw_message)) {
+      return false;
+    }
+
+    if (event.message_type == 'group') {
+      // 群插件
+      let msg = event.raw_message;
+    }
+
+    return false;
   }
 
   public async load() {
@@ -60,12 +81,14 @@ export class Switcher implements SwitcherInterface {
     }
   }
 
-  public async checkEnable(groupId: string, name: string): Promise<boolean> {
+  public async checkEnabled(groupId: string, name: string): Promise<boolean> {
+    //TODO: private message with groupId != null
+
     const { index } = await this.getGroupFunc(groupId, name);
     return index > -1;
   }
 
-  private getKey(groupId: string) {
+  private getKey(groupId: string): string {
     return `${this.REDIS_KEY_PREFIX}${groupId}`;
   }
 

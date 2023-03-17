@@ -2,6 +2,7 @@ import util from 'node:util'
 
 import FileUtil from '../utils/file'
 import BasePlugin from './plugins/basePlugin';
+import debouncer, { Debouncer } from './plugins/debouncer';
 import switcher, { Switcher } from './plugins/switcher';
 
 type PluginFile = {
@@ -16,20 +17,35 @@ type Plugin = {
 
 type Task = {};
 
-export default class PluginLoader {
+interface PluginLoaderInterface {
+  /**
+   * 加载插件
+   */
+  load(): Promise<void>;
+  /**
+   * 初始化数据
+   */
+  prepareData(): Promise<void>;
+  /**
+   * 调用插件响应事件
+   * @param event 收到的事件
+   */
+  handle(event: any): Promise<void>;
+}
+
+export default class PluginLoader implements PluginLoaderInterface {
   private plugins: Plugin[];
   private tasks: Task[];
   private readonly switcher: Switcher;
+  private readonly debouncer: Debouncer;
 
   constructor() {
     this.plugins = [];
     this.tasks = [];
     this.switcher = switcher;
+    this.debouncer = debouncer;
   }
 
-  /**
-   * 加载插件
-   */
   public async load() {
     global.logger.info('开始加载插件...');
 
@@ -58,22 +74,19 @@ export default class PluginLoader {
     global.logger.info(`插件初始化完成！一共加载了${this.plugins.length}个插件！`);
   }
 
-  /**
-   * 初始化数据
-   */
   public async prepareData() {
-    // 设置群启动插件
+    // 群插件开关控制组件
     await switcher.load();
+    //TODO: 群插件冷却控制组件
+    await debouncer.load();
   }
 
-  /**
-   * 调用插件响应事件
-   * @param event 收到的事件
-   */
   public async handle(event: any) {
+    //TODO: 匹配是否是开关命令
+
     for (let plugin of this.plugins) {
       // 插件是否启用
-      // if (!await this.switcher.checkEnable(event['group_id'], plugin.key)) {
+      // if (!await this.switcher.checkEnabled(event['group_id'], plugin.key)) {
       //   continue;
       // }
 
@@ -82,21 +95,35 @@ export default class PluginLoader {
         continue;
       }
 
-      //TODO: 插件是否仍在冷却时间
-
-      //TODO: 判断是否匹配正则
+      // 判断是否匹配正则
       for (let rule of plugin.handler.rules) {
+        // 插件是否匹配
         if (!new RegExp(rule.reg).test(event.raw_message)) {
           continue;
         }
 
+        // 插件是否可运行
         if (!plugin.handler[rule.func]) {
           global.logger.error(`找不到方法 ${plugin.key}.${rule.func}`);
           continue;
         }
 
+        // 插件是否仍在冷却时间
+        if (!this.debouncer.checkEnabled(plugin.key)) {
+          global.logger.error(`插件 ${plugin.key} 仍处于冷却时间当中`);
+
+          //TODO: 返回限制信息
+          let msg = `插件 [${plugin.key}] 仍处于冷却时间当中，请稍后再试`;
+          if (event.group_id) {
+            global.bot.sendGroupMsg(event.group_id, msg);
+          } else {
+            global.bot.sendPrivateMsg(event.user_id, msg);
+          }
+
+          continue;
+        }
+
         try {
-          console.log('执行方法',rule.func);
           let res = plugin.handler[rule.func](event);
           if (util.types.isPromise(res)) {
             res = await res;

@@ -11,6 +11,6 @@ export default class NoticeEvent extends BaseEvent {
   }
 
   async execute(event) {
-    global.pluginLoader.handle(event);
+    await global.pluginLoader.handle(event);
   }
 }

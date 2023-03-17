@@ -14,6 +14,6 @@ export default class OnlineEvent extends BaseEvent {
   async execute(event) {
     global.logger.info('上线成功');
 
-    global.pluginLoader.prepareData();
+    await global.pluginLoader.prepareData();
   }
 }
