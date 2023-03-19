@@ -15,17 +15,13 @@ type Plugin = {
   handler: BasePlugin
 };
 
-type Task = {};
+// type Task = {};
 
 interface PluginLoaderInterface {
   /**
    * 加载插件
    */
   load(): Promise<void>;
-  /**
-   * 初始化数据
-   */
-  prepareData(): Promise<void>;
   /**
    * 调用插件响应事件
    * @param event 收到的事件
@@ -35,68 +31,45 @@ interface PluginLoaderInterface {
 
 export default class PluginLoader implements PluginLoaderInterface {
   private plugins: Plugin[];
-  private tasks: Task[];
+  // private tasks: Task[];
   private readonly switcher: Switcher;
   private readonly debouncer: Debouncer;
 
   constructor() {
     this.plugins = [];
-    this.tasks = [];
+    // this.tasks = [];
     this.switcher = switcher;
     this.debouncer = debouncer;
   }
 
   public async load() {
-    global.logger.info('开始加载插件...');
-
-    const files = this.getPluginFiles();
-    for (let file of files) {
-      try {
-        let pluginClass = await import(file.path);
-        if (!pluginClass.default) {
-          continue;
-        }
-
-        // 插件实例化
-        let plugin = new pluginClass.default();
-        await plugin.init();
-
-        this.plugins.push({
-          key: file.name,
-          handler: plugin
-        });
-      } catch (err) {
-        global.logger.error(`加载插件错误: ${file.name}`);
-        global.logger.error(err);
-      }
-    }
-
-    global.logger.info(`插件初始化完成！一共加载了${this.plugins.length}个插件！`);
-  }
-
-  public async prepareData() {
-    // 群插件开关控制组件
-    await switcher.load();
-    //TODO: 群插件冷却控制组件
-    await debouncer.load();
+    await this.loadExterior();
+    await this.loadInterior(); // 开关插件需要先加载所有外部插件后进行
   }
 
   public async handle(event: any) {
-    //TODO: 匹配是否是开关命令
+    // 是否是开关命令
+    if (await this.switcher.handle(event)) {
+      return;
+    }
 
     for (let plugin of this.plugins) {
       // 插件是否启用
-      // if (!await this.switcher.checkEnabled(event['group_id'], plugin.key)) {
-      //   continue;
-      // }
+      if (!await this.switcher.checkEnabled(event['group_id'], plugin.key)) {
+        continue;
+      }
 
       // 事件字符串是否匹配
-      if (!this.matchEvent(event, plugin.handler.event)) {
+      if (!this.matchEvent(event, plugin.handler.data.event)) {
+        continue;
+      }
+
+      if (!plugin.handler.data.rules) {
         continue;
       }
 
       // 判断是否匹配正则
-      for (let rule of plugin.handler.rules) {
+      for (let rule of plugin.handler.data.rules) {
         // 插件是否匹配
         if (!new RegExp(rule.reg).test(event.raw_message)) {
           continue;
@@ -134,6 +107,55 @@ export default class PluginLoader implements PluginLoaderInterface {
         }
       }
     }
+  }
+
+  /**
+   * 加载内部插件
+   */
+  private async loadInterior() {
+    global.logger.info('开始加载内部插件...');
+
+    // 群插件开关控制组件
+    let pluginNameList: string[] = [];
+    this.plugins.forEach(plugin => pluginNameList.push(plugin.key));
+    await switcher.load(pluginNameList);
+
+    // 群插件冷却控制组件
+    await debouncer.load();
+  }
+
+  /**
+   * 加载外部插件
+   */
+  private async loadExterior() {
+    global.logger.info('开始加载外部插件...');
+
+    const files: PluginFile[] = this.getPluginFiles();
+    for (let file of files) {
+      try {
+        let pluginClass = await import(file.path);
+        if (!pluginClass.default) {
+          continue;
+        }
+
+        // 插件实例化
+        let plugin: BasePlugin = new pluginClass.default();
+        await plugin.init();
+
+        // 冷却组件
+        this.debouncer.change(plugin.data.name, plugin.data.coolDownTime);
+
+        this.plugins.push({
+          key: plugin.data.name,
+          handler: plugin
+        });
+      } catch (err) {
+        global.logger.error(`加载插件文件错误: ${file.name}`);
+        global.logger.error(err);
+      }
+    }
+
+    global.logger.info(`插件初始化完成！一共加载了${this.plugins.length}个外部插件！`);
   }
 
   /**

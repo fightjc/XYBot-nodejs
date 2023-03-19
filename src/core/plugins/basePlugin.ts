@@ -14,6 +14,8 @@ type PluginData = {
   desc: string,
   /** 监听事件 */
   event: string,
+  /** 插件冷却时间，单位毫秒 */
+  coolDownTime: number,
   /** 匹配规则 */
   rules?: RuleData[]
 };
@@ -22,7 +24,7 @@ interface BasePluginInterface {
   /**
    * 初始化
    */
-  init(): void;
+   init(): Promise<void>;
   /**
    * 判断是否有权限响应事件
    * @param event 收到的事件
@@ -32,20 +34,19 @@ interface BasePluginInterface {
 }
 
 export default class BasePlugin implements BasePluginInterface {
-  public readonly name: string;
-  public readonly desc: string;
-  public readonly event: string;
-  public readonly rules: RuleData[];
+  public readonly data: PluginData;
 
   constructor(data: PluginData) {
-    this.name = data.name;
-    this.desc = data.desc;
-    this.event = data.event || "message";
-    this.rules = data.rules || [];
+    this.data = {
+      name: data.name,
+      desc: data.desc,
+      event: data.event ?? 'message',
+      coolDownTime: data.coolDownTime ?? 500,
+      rules: data.rules ?? []
+    };
   }
 
-  public init(): void {
-  }
+  public async init(): Promise<void> {}
 
   public checkPermission(event: any, rule: RuleData): boolean {
     if (!rule.permission || rule.permission == 'everyone') {

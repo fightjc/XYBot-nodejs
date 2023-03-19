@@ -23,7 +23,6 @@ export default class LoginEvent extends BaseEvent {
     // 循环获取扫码结果，2s一次
     let time = 0;
     let interval = setInterval(async () => {
-      time++;
       let res = await this.client.queryQrcodeResult();
       if (res.retcode === 0) {
         logger.info('扫码成功，开始登录...');
@@ -31,6 +30,8 @@ export default class LoginEvent extends BaseEvent {
         this.client.qrcodeLogin();
         clearInterval(interval);
       }
+      
+      time++;
       if (time >= 150) {
         // 等待超过 5(= 150 * 2 / 60) 分钟
         clearInterval(interval);
