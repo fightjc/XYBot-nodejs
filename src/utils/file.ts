@@ -90,7 +90,6 @@ class FileUtil implements FileUtilInterface {
   public createDir(dirName: string, place?: PresetPlace, recursive: boolean = false): boolean {
     const path: string = this.getFilePath(dirName, place);
     const exist: boolean = this.isExist(path);
-    console.log(path, exist);
     if (!exist) {
       fs.mkdirSync(path, { recursive });
     }

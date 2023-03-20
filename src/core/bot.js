@@ -1,5 +1,5 @@
 import { Client } from 'oicq'
-import eventLoader from './eventLoader.js'
+import eventLoader from './events/eventLoader'
 
 export default class Bot extends Client {
   constructor (uin, conf) {

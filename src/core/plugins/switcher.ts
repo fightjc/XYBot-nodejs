@@ -1,10 +1,5 @@
 import groupConfig from "../config/groupConfig";
 
-type GroupFuncInfo = {
-  list: string[],
-  index: number
-};
-
 interface SwitcherInterface {
   /**
    * 从配置文件导入所有数据到redis
@@ -17,34 +12,39 @@ interface SwitcherInterface {
    */
   handle(event: any): Promise<boolean>;
   /**
-   * 检测收到事件的群是否开启插件
+   * 检测群是否开启插件
    * @param groupId 群Id
    * @param name 插件名称
    */
-  checkEnabled(groupId: string, name: string): Promise<boolean>;
+  checkGroupEnabled(groupId: number, name: string): Promise<boolean>;
+  /**
+   * 检测人是否开启插件
+   * @param userId 用户Id
+   * @param name 插件名称
+   */
+  checkPrivateEnabled(userId: number, name: string): Promise<boolean>;
 }
 
 export class Switcher implements SwitcherInterface {
   private readonly REDIS_KEY_PREFIX: string = 'xybot:switcher:';
-  private readonly SWITCH_REG = '^开关\\s+\\w+';
+  private readonly SWITCH_REG = '^开关\\s+\\S+';
 
-  public pluginNameList: string[];
+  public pluginNameList: string[] = [];
 
-  constructor() {
-    this.pluginNameList = [];
-  }
+  constructor() {}
 
   public async load(list: string[]) {
     this.pluginNameList = list;
 
+    // 加载文件配置
     const groupData = groupConfig.getAll();
     for (let groupId in groupData) {
-      await global.redis.setString(this.getKey(groupId), JSON.stringify(groupData[groupId]));
+      await this.setGroupFunc(Number(groupId), groupData[groupId]);
     }
   }
 
   public async handle(event: any): Promise<boolean> {
-    if (event.post_type == 'message') {
+    if (event.post_type != 'message') {
       return false;
     }
 
@@ -52,29 +52,36 @@ export class Switcher implements SwitcherInterface {
       return false;
     }
 
+    //TODO: handle private switch...
+
+    // 群插件开关
     if (event.message_type == 'group') {
-      //TODO: 判断命令人权限
-      if (event.user_id != global.config.master) {
+      // 判断命令人权限
+      if (event.user_id != global.config.master && !['owner', 'admin'].includes(event.sender.role)) {
         return false;
       }
 
-      // 群插件
-      let args = event.raw_message.split(' ').filter(e => e);
+      // 判断参数数量
+      let args = event.raw_message.split(' ').filter((e: string) => e);
       if (args.length < 2) {
-        global.bot.sendGroupMsg(event.group_id, '使用方式：开关 [列表] [开启/关闭 组件名]');
+        await global.bot.sendGroupMsg(event.group_id, '使用方式：开关 [列表] [开启/关闭 组件名]');
       }
 
+      // 解析
       if (args[1] == '列表') {
         await this.handleList(event.group_id);
       } else if (args[1] == '开启' || args[1] == '关闭') {
         let on: boolean = args[1] == '开启' ? true :  false;
 
-        if (this.pluginNameList.indexOf(args[2]) > -1) {
+        if (this.pluginNameList.includes(args[2])) {
           await this.change(event.group_id, args[2], on);
-          global.bot.sendGroupMsg(event.group_id, `[${args[2]}] ${on ? '已开启' : '已关闭'}`);
+          await global.bot.sendGroupMsg(event.group_id, `[${args[2]}] ${on ? '已开启' : '已关闭'}`);
         } else {
-          global.bot.sendGroupMsg(event.group_id, `[${args[2]}] 功能不存在。请使用命令 '开关 列表' 查询所有已加载插件`);
+          await global.bot.sendGroupMsg(event.group_id, `[${args[2]}] 功能不存在。请使用命令 '开关 列表' 查询所有已加载插件`);
         }
+      } else {
+        // 一级菜单错误
+        await global.bot.sendGroupMsg(event.group_id, '使用方式：开关 [列表] [开启/关闭 组件名]');
       }
       return true;
     }
@@ -82,11 +89,14 @@ export class Switcher implements SwitcherInterface {
     return false;
   }
 
-  public async checkEnabled(groupId: string, name: string): Promise<boolean> {
-    //TODO: private message with groupId != null
+  public async checkGroupEnabled(groupId: number, name: string): Promise<boolean> {
+    const list = await this.getGroupFunc(groupId);
+    return list.includes(name);
+  }
 
-    const { index } = await this.getGroupFunc(groupId, name);
-    return index > -1;
+  public async checkPrivateEnabled(userId: number, name: string): Promise<boolean> {
+    // TODO: plugins for private
+    return false;
   }
 
   /**
@@ -95,11 +105,11 @@ export class Switcher implements SwitcherInterface {
    * @param name 插件名称
    * @param enable 是否激活
    */
-
-  private async change(groupId: string, name: string, enable: boolean) {
+  private async change(groupId: number, name: string, enable: boolean) {
     let hasChange = false;
 
-    const { list, index } = await this.getGroupFunc(groupId, name)
+    const list = await this.getGroupFunc(groupId);
+    let index = list.indexOf(name);
     if (enable) {
       if (index == -1) {
         list.push(name);
@@ -113,6 +123,7 @@ export class Switcher implements SwitcherInterface {
     }
 
     if (hasChange) {
+      await this.setGroupFunc(groupId, list);
       groupConfig.setFunction(groupId, list);
     }
   }
@@ -121,25 +132,36 @@ export class Switcher implements SwitcherInterface {
    * 打印群插件列表开关状态
    * @param groupId 群Id
    */
-  private async handleList(groupId: string) {
-    const { list, index } = await this.getGroupFunc(groupId, '');
+  private async handleList(groupId: number) {
+    const list = await this.getGroupFunc(groupId);
 
-    let msg = '当前组件有：\n';
+    let msg = '当前组件有:';
     this.pluginNameList.forEach(name => {
-        msg += `${name} ${list[name] ? '开启中' : '未开启'}\n`;
+        msg += `\n${name} ${list.includes(name) ? '开启中' : '未开启'}`;
     });
-    global.bot.sendGroupMsg(groupId, msg);
+    await global.bot.sendGroupMsg(groupId, msg);
   }
 
-  private getKey(groupId: string): string {
+  private getKey(groupId: number): string {
     return `${this.REDIS_KEY_PREFIX}${groupId}`;
   }
 
-  private async getGroupFunc(groupId: string, name: string): Promise<GroupFuncInfo> {
+  private async getGroupFunc(groupId: number): Promise<string[]> {
     let key = this.getKey(groupId);
-    let data = await global.redis.getString(key);
-    let list: string[] = JSON.parse(data) || [];
-    return { list, index: list.indexOf(name) };
+    let data: string = await global.redis.getString(key) || '[]';
+    try {
+      let list: string[] = JSON.parse(data);
+      return list;
+    } catch(e) {
+      global.logger.error(`解析redis[key:'${key}']JSON值失败`, e);
+      return [];
+    }
+  }
+
+  private async setGroupFunc(groupId: number, list: string[]): Promise<void> {
+    let key = this.getKey(groupId);
+    let data: string = JSON.stringify(list) || `'[]'`;
+    await global.redis.setString(key, data);
   }
 }
 

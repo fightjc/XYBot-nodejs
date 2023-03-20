@@ -2,7 +2,7 @@ import logger from './config/logger';
 import botConfig from './config/botConfig';
 import Bot from './bot.js';
 import redis from './config/redis';
-import PluginLoader from './pluginLoader'
+import pluginLoader from './plugins/pluginLoader'
 
 process.title = 'XYBot';
 process.env.TZ = 'Asia/Shanghai';
@@ -39,7 +39,7 @@ export default class XYBot {
     await global.redis.connect();
 
     // 插件
-    global.pluginLoader = new PluginLoader();
+    global.pluginLoader = pluginLoader;
     await global.pluginLoader.load();
 
     global.logger.info('XYBot 启动中...');

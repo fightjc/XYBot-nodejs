@@ -18,13 +18,13 @@ interface GroupConfigInterface {
    * 获取指定群激活插件
    * @param groupId 群Id
    */
-  getFunctions(groupId: string): string[];
+  getFunctions(groupId: number): string[];
   /**
    * 设置指定群激活插件
    * @param groupId 群Id
    * @param name 插件名
    */
-  setFunction(groupId: string, name: string | string[]): void;
+  setFunction(groupId: number, name: string | string[]): void;
 }
 
 export class GroupConfig implements GroupConfigInterface {
@@ -53,15 +53,15 @@ export class GroupConfig implements GroupConfigInterface {
     FileUtil.writeYAML(this.filename, data);
   }
 
-  public getFunctions(groupId: string): string[] {
+  public getFunctions(groupId: number): string[] {
     const settings: GroupData = FileUtil.loadYAML(this.filename);
-    return settings[groupId] ?? [];
+    return settings[`${groupId}`] ?? [];
   }
 
-  public setFunction(groupId: string, name: string | string[]): void {
+  public setFunction(groupId: number, name: string | string[]): void {
     let settings: GroupData = FileUtil.loadYAML(this.filename);
     let enabled: string[] = Array.isArray(name) ? name : [name];
-    settings[groupId] = enabled;
+    settings[`${groupId}`] = enabled;
     FileUtil.writeYAML(this.filename, settings);
   }
 }

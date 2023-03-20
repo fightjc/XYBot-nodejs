@@ -1,16 +1,31 @@
-import FileUtil from '../utils/file'
+import { Client } from 'oicq';
+import FileUtil from '../../utils/file'
+import BaseEvent from './baseEvent';
 
-class EventLoader {
-  async load(client) {
+interface EventLoaderInterface {
+  /**
+   * 加载插件
+   * @param client QQ客户端
+   */
+  load(client: Client): Promise<void>;
+}
+
+export class EventLoader implements EventLoaderInterface {
+  constructor() {}
+
+  async load(client: Client) {
     const files = FileUtil.getDirFiles('src/core/events').filter(file => file.endsWith('.js'));
     for (let file of files) {
       try {
-        let listenerClass = await import(`./events/${file}`);
+        let listenerClass = await import(`./${file}`);
         if (!listenerClass.default) {
           continue;
         }
 
         let listener = new listenerClass.default();
+        if (!BaseEvent.prototype.isPrototypeOf(listener)) {
+          continue;
+        }
         listener.client = client;
         const on = listener.once ? 'once' : 'on';
 

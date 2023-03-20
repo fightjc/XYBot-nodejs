@@ -35,17 +35,17 @@ export default class Greeting extends BasePlugin {
     ];
   }
 
-  greet(event) {
+  async greet(event) {
     if (random(1, 20) == 1) {
       // 5%概率彩蛋
       return '不听不听，王八念经';
     }
 
-    let list = event.raw_message.indexOf('早') > -1 ? this.morning : this.evening;
+    let list = event.raw_message.includes('早') ? this.morning : this.evening;
     let r = random(1, list.length);
     let msg = list[r - 1];
 
     // 发送群消息
-    global.bot.sendGroupMsg(event.group_id, msg);
+    await global.bot.sendGroupMsg(event.group_id, msg);
   }
 }

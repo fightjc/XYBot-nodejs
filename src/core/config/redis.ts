@@ -121,9 +121,9 @@ export class Redis implements RedisInterface {
 
   public async setHash(key: string, obj: any, timeout?: number): Promise<void> {
     if (timeout === undefined) {
-      await this.client.hSet(key, obj);
+      await this.client.hSetAll(key, obj);
     } else {
-      await this.client.hSet(key, obj, 'EX', timeout);
+      await this.client.hSetAll(key, obj, 'EX', timeout);
     }
   }
 

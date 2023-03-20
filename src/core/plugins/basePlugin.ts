@@ -59,7 +59,7 @@ export default class BasePlugin implements BasePluginInterface {
 
     if (rule.permission == 'admin') {
       let sender = event['sender'];
-      if (sender && sender['role'] == 'owner') {
+      if (sender &&  [ 'owner', 'admin' ].includes(sender['role'])) {
         return true;
       }
     }

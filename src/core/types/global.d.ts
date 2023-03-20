@@ -2,7 +2,7 @@ import Bot from "../bot";
 import { BotConfig } from "../config/botConfig";
 import { Logger } from "../config/logger";
 import { Redis } from "../config/redis";
-import PluginLoader from "../pluginLoader";
+import { PluginLoader } from "../plugins/pluginLoader";
 
 declare global {
   var logger: Logger;

@@ -11,6 +11,7 @@ export default class MessageEvent extends BaseEvent {
   }
 
   async execute(event) {
+    //refs: https://oicqjs.github.io/oicq/interfaces/MessageEvent.html
     await global.pluginLoader.handle(event);
   }
 }

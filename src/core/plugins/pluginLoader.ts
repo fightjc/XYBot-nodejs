@@ -1,9 +1,9 @@
 import util from 'node:util'
 
-import FileUtil from '../utils/file'
-import BasePlugin from './plugins/basePlugin';
-import debouncer, { Debouncer } from './plugins/debouncer';
-import switcher, { Switcher } from './plugins/switcher';
+import FileUtil from '../../utils/file'
+import BasePlugin from './basePlugin';
+import debouncer, { Debouncer } from './debouncer';
+import switcher, { Switcher } from './switcher';
 
 type PluginFile = {
   name: string,
@@ -29,7 +29,7 @@ interface PluginLoaderInterface {
   handle(event: any): Promise<void>;
 }
 
-export default class PluginLoader implements PluginLoaderInterface {
+export class PluginLoader implements PluginLoaderInterface {
   private plugins: Plugin[];
   // private tasks: Task[];
   private readonly switcher: Switcher;
@@ -54,8 +54,8 @@ export default class PluginLoader implements PluginLoaderInterface {
     }
 
     for (let plugin of this.plugins) {
-      // 插件是否启用
-      if (!await this.switcher.checkEnabled(event['group_id'], plugin.key)) {
+      // 群插件是否启用
+      if (!await this.switcher.checkGroupEnabled(event['group_id'], plugin.key)) {
         continue;
       }
 
@@ -64,11 +64,10 @@ export default class PluginLoader implements PluginLoaderInterface {
         continue;
       }
 
+      // 判断是否匹配正则
       if (!plugin.handler.data.rules) {
         continue;
       }
-
-      // 判断是否匹配正则
       for (let rule of plugin.handler.data.rules) {
         // 插件是否匹配
         if (!new RegExp(rule.reg).test(event.raw_message)) {
@@ -85,12 +84,12 @@ export default class PluginLoader implements PluginLoaderInterface {
         if (!this.debouncer.checkEnabled(plugin.key)) {
           global.logger.error(`插件 ${plugin.key} 仍处于冷却时间当中`);
 
-          //TODO: 返回限制信息
+          // 返回限制信息
           let msg = `插件 [${plugin.key}] 仍处于冷却时间当中，请稍后再试`;
           if (event.group_id) {
-            global.bot.sendGroupMsg(event.group_id, msg);
+            await global.bot.sendGroupMsg(event.group_id, msg);
           } else {
-            global.bot.sendPrivateMsg(event.user_id, msg);
+            await global.bot.sendPrivateMsg(event.sender.user_id, msg);
           }
 
           continue;
@@ -122,6 +121,8 @@ export default class PluginLoader implements PluginLoaderInterface {
 
     // 群插件冷却控制组件
     await debouncer.load();
+
+    global.logger.info(`内部插件加载完成！`);
   }
 
   /**
@@ -139,7 +140,10 @@ export default class PluginLoader implements PluginLoaderInterface {
         }
 
         // 插件实例化
-        let plugin: BasePlugin = new pluginClass.default();
+        let plugin = new pluginClass.default();
+        if (!BasePlugin.prototype.isPrototypeOf(plugin)) {
+          continue;
+        }
         await plugin.init();
 
         // 冷却组件
@@ -155,7 +159,7 @@ export default class PluginLoader implements PluginLoaderInterface {
       }
     }
 
-    global.logger.info(`插件初始化完成！一共加载了${this.plugins.length}个外部插件！`);
+    global.logger.info(`外部插件加载完成！一共加载了${this.plugins.length}个外部插件！`);
   }
 
   /**
@@ -169,7 +173,7 @@ export default class PluginLoader implements PluginLoaderInterface {
     for (let file of files) {
       let pluginPath = `${pluginsDir}/${file.name}`;
       let filePath = FileUtil.getFilePath(pluginPath);
-      let importPath = `../plugins/${file.name}`;
+      let importPath = `../../plugins/${file.name}`;
 
       // 单个文件加载
       if (file.isFile()) {
@@ -225,3 +229,5 @@ export default class PluginLoader implements PluginLoaderInterface {
     return currentEvent.startsWith(match);
   }
 }
+
+export default new PluginLoader()
