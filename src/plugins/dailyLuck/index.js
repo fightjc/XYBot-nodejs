@@ -33,7 +33,10 @@ export default class DailyLuck extends BasePlugin {
   async gacha(event) {
     // 当天一个 Id 只能抽签一次
     if (await this.checkHasGacha(event.sender.user_id)) {
-      await global.bot.sendGroupMsg(event.group_id, '你今天已经抽过签了，欢迎明天再来～');
+      const at = segment.at(event.sender.user_id);
+      const text = `你今天已经抽过签了，欢迎明天再来～`;
+      const msg = [ at, ' ',  text ];
+      await global.bot.sendGroupMsg(event.group_id, msg);
       return;
     }
 
@@ -46,7 +49,7 @@ export default class DailyLuck extends BasePlugin {
         // 发送消息
         const at = segment.at(event.sender.user_id);
         const text = `你抽到了 ${sign.title}\n${sign.content}`;
-        const msg = [ at, text ];
+        const msg = [ at, ' ', text ];
         await global.bot.sendGroupMsg(event.group_id, msg);
         // 记录该用户已抽签
         await this.refreshRecord(event.sender.user_id);
