@@ -1,0 +1,48 @@
+{
+"gacha" : [
+  { "title" : "半吉", "content" : "默念口中咒，所言非所思。", "weight" : 80},
+  { "title" : "半吉", "content" : "吾身如浮萍，不敢言再会，幸得天眷顾，得挚友两三。", "weight" : 80 },
+  { "title" : "半吉", "content" : "应慎言，应慎行。", "weight" : 80 },
+  { "title" : "半吉", "content" : "天命如露滴，如幻更似虚，相逢若相知，逝去也足矣。", "weight" : 80 },
+  { "title" : "半吉", "content" : "胸中虽怀难言处，幸得有人问苦衷。", "weight" : 80 },
+  
+  { "title" : "多半个吉er", "content" : "到底是多了半个吉，还是比半个吉多了一点，关于这些，只能自己去想了", "weight" : 140 },
+  { "title" : "多半个吉er", "content" : "所以到底是多了半个吉，还是比半个吉多了一点啊？", "weight" : 140 },
+  { "title" : "多半个der", "content" : "到底是多了半个der，还是比半个der多了一点，关于这些，只能自己去想了der", "weight" : 140 },
+
+  { "title" : "小吉", "content" : "世人皆俱魑魅物，鬼妖之中亦有情。", "weight" : 70 },
+  { "title" : "小吉", "content" : "鬼无心，神有眼，五行有道。", "weight" : 70 },
+  { "title" : "小吉", "content" : "天上悬明月，清辉照万方，浮云随暂避，终不灭清光。", "weight" : 70 },
+  { "title" : "小吉", "content" : "身愿随心，对明月，有圆缺。", "weight" : 70 },
+  { "title" : "小吉", "content" : "春樱虽随风飘散，仍有余香风转廊。", "weight" : 70 },
+
+  { "title" : "中吉", "content" : "满山枫似锦，祭神灵，运可转之。", "weight" : 50 },
+  { "title" : "中吉", "content" : "人间冥界均无事，难得一日可清闲。", "weight" : 50 },
+  { "title" : "中吉", "content" : "山中红叶犹可见，前程美景在暗中。", "weight" : 50 },
+  { "title" : "中吉", "content" : "人间渺渺栖百鬼，天地四处皆为家。", "weight" : 50 },
+  { "title" : "中吉", "content" : "邪灵恶鬼，终得严惩，不必担忧。", "weight" : 50 },
+  { "title" : "中吉", "content" : "是非难辨，凡事宜忍。", "weight" : 50 },
+  
+  { "title" : "大吉", "content" : "时光如轮转，时运今再来。", "weight" : 45 },
+  { "title" : "大吉", "content" : "人世清净，鬼界安宁，休矣。", "weight" : 45 },
+
+  { "title" : "⑨", "content" : "没错，你是⑨", "weight" : 40 },
+  { "title" : "酒", "content" : "1、出牌阶段对自己使用，令本回合下一张【杀】所造成的伤害+1（一回合只能使用一次）。2、当你处于濒死状态时，对自己使用，立即回复1点体力（不能对他人使用【酒】）。", "weight" : 40 },
+  { "title" : "大吉吉", "content" : "嘿嘿嘿，(*/ω＼*)悄悄的使用吧。", "weight" : 40 },
+  { "title" : "鱼鱼", "content" : "你抽到鱼鱼啦，可劲的抽", "weight" : 35 },
+  { "title" : "cece", "content" : "滴滴滴！往我兜里放100块就可以送你去快乐星球！", "weight" : 35 },
+  { "title" : "猫咪", "content" : "一碟饼干，一杯茶，一只猫咪撸一天", "weight" : 35 },
+  { "title" : "狗头", "content" : "拿起球拍！和军师进行吧！", "weight" : 35 },
+  { "title" : "排骨", "content" : "来啃一口排骨吧，猪肉味，嘎嘣脆", "weight" : 35 },
+  { "title" : "芝麻", "content" : "这是什么？一粒芝麻！舔一口！（呸喽~）", "weight" : 35 },
+
+  { "title" : "好耶！", "content" : "好耶！针不戳！", "weight" : 40 },
+  { "title" : "一起搓澡卡！", "content" : "快@一个人一起来搓澡吧！", "weight" : 40 },
+  
+  { "title" : "自定义头衔机会卡", "content" : "这是一个很不错的机会，但你忍心改掉这么好的头衔么", "weight" : 20 },
+ 
+  { "title" : "鱼鱼的爱", "content" : "这可是非常稀有的！收下并感动吧！", "weight" : 15 },
+  
+  { "title" : "5元红包", "content" : "还有什么是比这更好运的！！！快到财务处领取！！！", "weight" : 3 }
+]
+}

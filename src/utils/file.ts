@@ -36,6 +36,12 @@ interface FileUtilInterface {
    */
   createDir(dirName: string, place?: PresetPlace, recursive?: boolean): boolean;
   /**
+   * 读取文件
+   * @param fileName 文件路径
+   * @param place 预设目录
+   */
+  loadFile(fileName: string, place?: PresetPlace): string;
+  /**
    * 读取yaml文件
    * @param yamlName yaml文件名
    * @param place 预设目录
@@ -94,6 +100,11 @@ class FileUtil implements FileUtilInterface {
       fs.mkdirSync(path, { recursive });
     }
     return exist;
+  }
+  
+  public loadFile(fileName: string, place?: PresetPlace): string {
+    const path: string = this.getFilePath(fileName, place);
+    return fs.readFileSync(path, 'utf-8');
   }
 
   public loadYAML(yamlName: string, place: PresetPlace = 'config'): any {
