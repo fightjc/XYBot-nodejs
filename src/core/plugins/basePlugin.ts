@@ -63,13 +63,14 @@ export default class BasePlugin implements BasePluginInterface {
       return true;
     }
 
-    if (rule.permission == 'master' && event.user_id == global.config.master) {
-      return true;
-    }
+    let sender = event['sender'];
+    if (sender) {
+      if (sender.user_id == global.config.master) {
+        // 所有命令默认对主人QQ开放
+        return true;
+      }
 
-    if (rule.permission == 'admin') {
-      let sender = event['sender'];
-      if (sender &&  [ 'owner', 'admin' ].includes(sender['role'])) {
+      if (rule.permission == 'admin' && [ 'owner', 'admin' ].includes(sender['role'])) {
         return true;
       }
     }

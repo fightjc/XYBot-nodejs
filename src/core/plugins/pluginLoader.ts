@@ -79,6 +79,11 @@ export class PluginLoader implements PluginLoaderInterface {
         continue;
       }
       for (let rule of plugin.handler.data.rules) {
+        // 发起命令者是否有权限操作群插件
+        if (!plugin.handler.checkPermission(event, rule)) {
+          continue;
+        }
+
         // 插件是否匹配
         if (!new RegExp(rule.reg).test(event.raw_message)) {
           continue;
