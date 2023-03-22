@@ -1,4 +1,5 @@
 import util from 'node:util'
+import { Job, scheduleJob } from "node-schedule";
 
 import FileUtil from '../../utils/file'
 import BasePlugin from './basePlugin';
@@ -15,7 +16,10 @@ type Plugin = {
   handler: BasePlugin
 };
 
-// type Task = {};
+type Task = {
+  key: string,
+  handler: Job
+};
 
 interface PluginLoaderInterface {
   /**
@@ -30,14 +34,20 @@ interface PluginLoaderInterface {
 }
 
 export class PluginLoader implements PluginLoaderInterface {
+  private readonly EventMap = {
+    'message': [ 'post_type', 'message_type', 'sub_type' ],
+    'notice': [ 'post_type', 'notice_type', 'sub_type' ],
+    'request': [ 'post_type', 'request_type', 'sub_type' ]
+  };
+
   private plugins: Plugin[];
-  // private tasks: Task[];
+  private tasks: Task[];
   private readonly switcher: Switcher;
   private readonly debouncer: Debouncer;
 
   constructor() {
     this.plugins = [];
-    // this.tasks = [];
+    this.tasks = [];
     this.switcher = switcher;
     this.debouncer = debouncer;
   }
@@ -74,9 +84,9 @@ export class PluginLoader implements PluginLoaderInterface {
           continue;
         }
 
-        // 插件是否可运行
+        // 插件方法是否可运行
         if (!plugin.handler[rule.func]) {
-          global.logger.error(`找不到方法 ${plugin.key}.${rule.func}`);
+          global.logger.error(`找不到插件方法 ${plugin.key}.${rule.func}`);
           continue;
         }
 
@@ -101,7 +111,7 @@ export class PluginLoader implements PluginLoaderInterface {
             res = await res;
           }
         } catch (err) {
-          global.logger.error(`执行方法 ${plugin.key}.${rule.func} 出错:`);
+          global.logger.error(`执行插件方法 ${plugin.key}.${rule.func} 出错:`);
           global.logger.error(err);
         }
       }
@@ -159,7 +169,49 @@ export class PluginLoader implements PluginLoaderInterface {
       }
     }
 
+    // 加载定时任务
+    await this.loadScheduleTask();
+
     global.logger.info(`外部插件加载完成！一共加载了${this.plugins.length}个外部插件！`);
+  }
+
+  /**
+   * 加载插件定时任务
+   */
+  private async loadScheduleTask() {
+    for (let plugin of this.plugins) {
+      let tasks = plugin.handler.data.tasks;
+      if (!tasks || tasks.length == 0) {
+        // 没有定时任务不处理
+        return;
+      }
+      
+      for (let task of tasks) {
+        // 定时方法是否可运行
+        if (!plugin.handler[task.func]) {
+          global.logger.error(`找不到定时方法 ${plugin.key}.${task.func}`);
+          continue;
+        }
+
+        let job: Job = scheduleJob(task.cron, async () => {
+          try {
+            let res = plugin.handler[task.func]();
+            if (util.types.isPromise(res)) {
+              res = await res;
+            }
+          } catch (err) {
+            global.logger.error(`执行定时方法 ${plugin.key}.${task.func} 出错:`);
+            global.logger.error(err);
+          }
+        });
+
+        // 存储定时任务供取消定时任务
+        this.tasks.push({
+          key: `${plugin.key}.${task.func}`,
+          handler: job
+        });
+      }
+    }
   }
 
   /**
@@ -217,13 +269,12 @@ export class PluginLoader implements PluginLoaderInterface {
    * @param match 匹配字符串
    */
   private matchEvent(event: any, match: string): boolean {
-    let eventMap = {
-      'message': [ 'post_type', 'message_type', 'sub_type' ],
-      'notice': [ 'post_type', 'notice_type', 'sub_type' ],
-      'request': [ 'post_type', 'request_type', 'sub_type' ]
-    };
+    if (!match) {
+      // 字符串为空标记为不匹配
+      return false;
+    }
 
-    let list = eventMap[event.post_type];
+    let list = this.EventMap[event.post_type];
     let currentEvent = `${event[list[0]]}.${event[list[1]]}.${event[list[2]]}`;
 
     return currentEvent.startsWith(match);

@@ -7,6 +7,13 @@ type RuleData = {
   permission?: 'master' | 'admin' | 'friend' | 'everyone'
 };
 
+type TaskData = {
+  /** cron 表达式 */
+  cron: string,
+  /** 执行方法的方法名 */
+  func: string
+};
+
 type PluginData = {
   /** 插件名称 */
   name: string,
@@ -17,7 +24,9 @@ type PluginData = {
   /** 插件冷却时间，单位毫秒 */
   coolDownTime: number,
   /** 匹配规则 */
-  rules?: RuleData[]
+  rules?: RuleData[],
+  /** 定时任务 */
+  tasks?: TaskData[]
 };
 
 interface BasePluginInterface {
@@ -42,7 +51,8 @@ export default class BasePlugin implements BasePluginInterface {
       desc: data.desc,
       event: data.event ?? 'message',
       coolDownTime: data.coolDownTime ?? 500,
-      rules: data.rules ?? []
+      rules: data.rules ?? [],
+      tasks: data.tasks ?? []
     };
   }
 

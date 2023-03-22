@@ -24,7 +24,7 @@ interface DebouncerInterface {
 
 export class Debouncer implements DebouncerInterface {
   private readonly REDIS_KEY_PREFIX: string = 'xybot:debounce:';
-  /** 冷却事件，默认 500 ms */
+  /** 冷却时间，默认 500 ms */
   private readonly COOL_DOWN_TIME: number = 500;
   private data: Record<string, FuncExecInfo>;
 

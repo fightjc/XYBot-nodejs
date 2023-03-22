@@ -10,7 +10,6 @@ declare global {
   var bot: Bot;
   var redis: Redis;
   var pluginLoader: PluginLoader;
-  var scheduleTask: any;
 }
 
 export {}
