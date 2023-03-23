@@ -26,15 +26,15 @@ export class BotConfig {
   /** 数据存储文件夹，需要可写权限，默认主模块下的data文件夹 */
   public readonly data_dir: string;
 
-  private readonly filename: string = 'bot';
+  private readonly filename: string = 'bot.yml';
 
   constructor() {
     // 若文件不存在则创建文件
-    if (!FileUtil.isExist(FileUtil.getFilePath(`${this.filename}.yml`, 'config'))) {
+    if (!FileUtil.isExist(FileUtil.getFilePath(this.filename, 'config'))) {
       if (global.logger) {
-        global.logger.info(`检测到配置文件 ${this.filename}.yml 不存在，准备创建`);
+        global.logger.info(`检测到配置文件 ${this.filename} 不存在，准备创建`);
       } else {
-        console.log(`检测到配置文件 ${this.filename}.yml 不存在，准备创建`);
+        console.log(`检测到配置文件 ${this.filename} 不存在，准备创建`);
       }
 
       let data: BotData = {
@@ -50,9 +50,9 @@ export class BotConfig {
       FileUtil.writeYAML(this.filename, data);
 
       if (global.logger) {
-        global.logger.info(`请修改配置文件 ${this.filename}.yml 后再次运行程序`);
+        global.logger.info(`请修改配置文件 ${this.filename} 后再次运行程序`);
       } else {
-        console.log(`请修改配置文件 ${this.filename}.yml 后再次运行程序`);
+        console.log(`请修改配置文件 ${this.filename} 后再次运行程序`);
       }
       process.exit();
     }

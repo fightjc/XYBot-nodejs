@@ -2,7 +2,7 @@ import fs, { Dirent } from 'node:fs'
 import { resolve } from 'path';
 import * as yaml from 'yaml';
 
-export type PresetPlace = "root" | "config" | "plugin";
+export type PresetPlace = "root" | "config" | "plugins";
 
 interface FileUtilInterface {
   /**
@@ -42,16 +42,23 @@ interface FileUtilInterface {
    */
   loadFile(fileName: string, place?: PresetPlace): string;
   /**
+   * 覆写文件
+   * @param fileName 文件路径
+   * @param data 文件内容
+   * @param place 预设目录
+   */
+  writeFile(fileName: string, data: any, place?: PresetPlace);
+  /**
    * 读取yaml文件
    * @param yamlName yaml文件名
-   * @param place 预设目录
+   * @param place 预设目录，默认根目录config文件夹
    */
   loadYAML(yamlName: string, place: PresetPlace): any;
   /**
    * 覆写yaml文件
    * @param yamlName yaml文件名
    * @param data yaml内容
-   * @param place 预设目录
+   * @param place 预设目录，默认根目录config文件夹
    */
   writeYAML(yamlName: string, data: any, place?: PresetPlace): void;
 }
@@ -64,7 +71,7 @@ class FileUtil implements FileUtilInterface {
   constructor(root: string) {
     this.root = root;
     this.config = resolve(root, 'config');
-    this.plugins = resolve(root, 'plugins');
+    this.plugins = resolve(root, 'src', 'plugins');
   }
 
   public isExist(path: string): boolean {
@@ -107,14 +114,21 @@ class FileUtil implements FileUtilInterface {
     return fs.readFileSync(path, 'utf-8');
   }
 
+  public writeFile(fileName: string, data: any, place?: PresetPlace): void {
+    const path: string = this.getFilePath(fileName, place);
+    const opened: number = fs.openSync(path, 'w');
+    fs.writeSync(opened, data);
+    fs.closeSync(opened);
+  }
+
   public loadYAML(yamlName: string, place: PresetPlace = 'config'): any {
-    const path: string = `${this.getFilePath(yamlName, place)}.yml`;
+    const path: string = this.getFilePath(yamlName, place);
     const file: string = fs.readFileSync(path, 'utf-8');
     return yaml.parse(file) || {};
   }
 
   public writeYAML(yamlName: string, data: any, place: PresetPlace = 'config'): void {
-    const path: string = `${this.getFilePath(yamlName, place)}.yml`;
+    const path: string = this.getFilePath(yamlName, place);
     const opened: number = fs.openSync(path, 'w');
     fs.writeSync(opened, yaml.stringify(data));
     fs.closeSync(opened);

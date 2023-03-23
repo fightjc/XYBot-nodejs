@@ -27,18 +27,18 @@ interface RedisInterface {
  * https://www.npmjs.com/package/redis
  */
 export class Redis implements RedisInterface {
-  private readonly filename: string = 'redis';
+  private readonly filename: string = 'redis.yml';
   private redisUrl: string;
   private cfg: RedisConfig;
   private client: any;
 
   constructor() {
     // 若文件不存在则创建文件
-    if (!FileUtil.isExist(FileUtil.getFilePath(`${this.filename}.yml`, 'config'))) {
+    if (!FileUtil.isExist(FileUtil.getFilePath(this.filename, 'config'))) {
       if (global.logger) {
-        global.logger.info(`检测到配置文件 ${this.filename}.yml 不存在，准备创建`);
+        global.logger.info(`检测到配置文件 ${this.filename} 不存在，准备创建`);
       } else {
-        console.log(`检测到配置文件 ${this.filename}.yml 不存在，准备创建`);
+        console.log(`检测到配置文件 ${this.filename} 不存在，准备创建`);
       }
       
       let data: RedisConfig = {

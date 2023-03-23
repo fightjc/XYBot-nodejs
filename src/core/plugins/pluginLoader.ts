@@ -184,6 +184,9 @@ export class PluginLoader implements PluginLoaderInterface {
    * 加载插件定时任务
    */
   private async loadScheduleTask() {
+    global.logger.info('开始加载定时任务...');
+    let count: number = 0; // 统计定时任务数量
+
     for (let plugin of this.plugins) {
       let tasks = plugin.handler.data.tasks;
       if (!tasks || tasks.length == 0) {
@@ -215,8 +218,11 @@ export class PluginLoader implements PluginLoaderInterface {
           key: `${plugin.key}.${task.func}`,
           handler: job
         });
+        count++;
       }
     }
+
+    global.logger.info(`定时任务加载完成！一共加载了${count}个定时任务！`);
   }
 
   /**
