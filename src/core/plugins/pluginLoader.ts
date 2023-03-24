@@ -1,5 +1,5 @@
 import util from 'node:util'
-import { Job, scheduleJob } from "node-schedule";
+import { Job, scheduleJob } from 'node-schedule';
 
 import FileUtil from '../../utils/file'
 import BasePlugin from './basePlugin';
@@ -91,7 +91,7 @@ export class PluginLoader implements PluginLoaderInterface {
 
         // 插件方法是否可运行
         if (!plugin.handler[rule.func]) {
-          global.logger.error(`找不到插件方法 ${plugin.key}.${rule.func}`);
+          global.logger.error(`找不到插件方法 ${plugin.key} - ${rule.func}`);
           continue;
         }
 
@@ -116,7 +116,7 @@ export class PluginLoader implements PluginLoaderInterface {
             res = await res;
           }
         } catch (err) {
-          global.logger.error(`执行插件方法 ${plugin.key}.${rule.func} 出错:`);
+          global.logger.error(`执行插件方法 ${plugin.key} - ${rule.func} 出错:`);
           global.logger.error(err);
         }
       }
@@ -191,13 +191,13 @@ export class PluginLoader implements PluginLoaderInterface {
       let tasks = plugin.handler.data.tasks;
       if (!tasks || tasks.length == 0) {
         // 没有定时任务不处理
-        return;
+        continue;
       }
       
       for (let task of tasks) {
         // 定时方法是否可运行
         if (!plugin.handler[task.func]) {
-          global.logger.error(`找不到定时方法 ${plugin.key}.${task.func}`);
+          global.logger.error(`找不到定时方法 ${plugin.key} - ${task.func}`);
           continue;
         }
 
@@ -208,7 +208,7 @@ export class PluginLoader implements PluginLoaderInterface {
               res = await res;
             }
           } catch (err) {
-            global.logger.error(`执行定时方法 ${plugin.key}.${task.func} 出错:`);
+            global.logger.error(`执行定时方法 ${plugin.key} - ${task.func} 出错:`);
             global.logger.error(err);
           }
         });
