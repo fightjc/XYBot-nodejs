@@ -1,11 +1,15 @@
+import moment from 'moment';
+
 import logger from './config/logger';
 import botConfig from './config/botConfig';
 import Bot from './bot.js';
 import redis from './config/redis';
-import pluginLoader from './plugins/pluginLoader'
+import pluginLoader from './plugins/pluginLoader';
+import renderer from '../utils/renderer';
 
-process.title = 'XYBot';
+process.title = 'xybot';
 process.env.TZ = 'Asia/Shanghai';
+moment.locale('zh-cn');
 
 /** 捕获未处理的Promise错误 */
 process.on('unhandledRejection', (err, promise) => {
@@ -17,7 +21,8 @@ process.on('unhandledRejection', (err, promise) => {
 });
 
 /** 退出事件 */
-process.on('exit', (code) => {
+process.on('exit', async (code) => {
+  await renderer.closeBrowser();
   global.redis.close();
   global.logger.info('程序已退出.');
 });

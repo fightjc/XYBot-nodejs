@@ -22,7 +22,7 @@ type PluginData = {
   /** 监听事件 */
   event: string,
   /** 插件冷却时间，单位毫秒 */
-  coolDownTime: number,
+  coolDownTime?: number,
   /** 匹配规则 */
   rules?: RuleData[],
   /** 定时任务 */

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <link rel="preload" href="src/plugins/genshin/resources/fonts/Ayuthaya.ttf" as="font">
+    <style>
+      body { padding: 0; margin: 0; }
+      .wrapper { font-family: 'Ayuthaya'; font-size: 14px; padding-bottom: 3px; }
+      .wrapper > .header { position: relative; padding: 5px 10px; }
+      .wrapper > .header > .title { font-weight: bold; }
+      .wrapper > .header > .time { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+      .wrapper > .container > .item { display: flex; justify-content: space-between; padding: 0 10px; }
+      .wrapper > .container > .item:not(:last-child) { margin-bottom: 3px; }
+      .abyss, .award { background-color: #8a2be2; color: white; }
+      .gacha { background-color: #ff8c00; color: white; }
+      .event { background-color: #228b22; color: white; }
+      .other { background-color: white; color: black; }
+    </style>
+  </head>
+  <body>
+    <div id="canvas" class="wrapper">
+      <div class="header">
+        <div class="title">原神日历</div>
+        <div class="time"><%= dateTime %></div>
+      </div>
+      <div id="container" class="container">
+        <% for (let item of list) { %>
+          <div class="item <%= item.type %>">
+            <div class="desc"><%= item.title %></div>
+            <div class="deadline"><%= item.deadline %></div>
+          </div>
+        <% } %>
+      </div>
+    </div>
+    <input type="hidden" id="data" value="<%= list.map(a => a.title + a.deadline).join(',') %>" />
+    <script>
+      // 限制整个面板宽度
+      (function () {
+        let data = document.getElementById('data').value;
+        let list = data.split(',');
+
+        let max = 0;
+        for (let item of list) {
+          let $span = document.createElement('span');
+          $span.style.fontSize = '14px';
+          $span.style.fontFamily = 'Ayuthaya';
+          $span.innerHTML = item;
+          document.body.append($span);
+          if ($span.offsetWidth > max) max = $span.offsetWidth;
+          $span.remove();
+        }
+        let $canvas = document.getElementById('canvas');
+        $canvas.style.width = `${max + 30}px`; // 左右边距各10px，概要和时间间隔10px
+      })();
+    </script>
+  </body>
+</html>
