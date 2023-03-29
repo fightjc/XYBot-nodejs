@@ -1,10 +1,11 @@
 import moment from 'moment';
 
-import logger from './config/logger';
-import botConfig from './config/botConfig';
 import Bot from './bot.js';
+import botConfig from './config/botConfig';
+import logger from './config/logger';
 import redis from './config/redis';
 import pluginLoader from './plugins/pluginLoader';
+import FileUtil from '../utils/file';
 import renderer from '../utils/renderer';
 
 process.title = 'xybot';
@@ -36,6 +37,9 @@ export default class XYBot {
     // 配置
     global.config = botConfig;
     global.logger.info('配置系统加载完成！');
+
+    // 缓存文件夹
+    FileUtil.createDir('data/temp', 'root', true);
   }
 
   public async run() {

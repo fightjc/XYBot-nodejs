@@ -51,6 +51,7 @@ export class Logger implements LoggerInterface {
         command: { appenders: ['console', 'logFile'], level: 'info' },
         error: { appenders: ['console', 'errFile'], level: 'error' }
       },
+			pm2: true, // 使用pm2需要设置为true，这样日志输出才不会被pm2拦截
       disableClustering: true
     });
 

@@ -114,7 +114,7 @@ export default class GenshinCalendar extends BasePlugin {
     if (groups.length > 0) {
       const image = await this.fetchData();
       if (image != null) {
-        for (let group in groups) {
+        for (let group of groups) {
           try {
             await global.bot.sendGroupMsg(group, image);
           } catch (e) {
