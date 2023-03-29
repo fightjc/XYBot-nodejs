@@ -3,6 +3,7 @@ import FileUtil from '../../utils/file'
 
 interface LoggerInterface {
   debug(message: any, ...args: any[]): void;
+  mark(message: any, ...args: any[]): void;
   info(message: any, ...args: any[]): void;
   error(message: any, ...args: any[]): void;
 }
@@ -48,10 +49,10 @@ export class Logger implements LoggerInterface {
       appenders: { console, logFile, errFile },
       categories: {
         default: { appenders: ['console'], level: 'debug' },
-        command: { appenders: ['console', 'logFile'], level: 'info' },
+        command: { appenders: ['console', 'logFile'], level: 'mark' },
         error: { appenders: ['console', 'errFile'], level: 'error' }
       },
-			pm2: true, // 使用pm2需要设置为true，这样日志输出才不会被pm2拦截
+      pm2: true, // 使用pm2需要设置为true，这样日志输出才不会被pm2拦截
       disableClustering: true
     });
 
@@ -62,6 +63,10 @@ export class Logger implements LoggerInterface {
 
   public debug(message: any, ...args: any[]) {
     this.defaultLogger.debug(message, ...args);
+  }
+
+  public mark(message: any, ...args: any[]) {
+    this.commandLogger.mark(message, ...args);
   }
 
   public info(message: any, ...args: any[]) {

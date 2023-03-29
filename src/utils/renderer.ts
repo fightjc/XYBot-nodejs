@@ -56,7 +56,7 @@ export class Renderer implements RendererInterface {
         ]
       });
       this.browser = browser;
-      global.logger.info('启动浏览器成功!');
+      global.logger.mark('启动浏览器成功!');
     } catch (e) {
       global.logger.error(`启动浏览器失败: ${e}`);
     }

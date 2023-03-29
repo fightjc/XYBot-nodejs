@@ -32,11 +32,11 @@ export default class XYBot {
   constructor() {
     // 日志
     global.logger = logger;
-    global.logger.info('日志系统加载完成！');
+    global.logger.mark('日志系统加载完成！');
 
     // 配置
     global.config = botConfig;
-    global.logger.info('配置系统加载完成！');
+    global.logger.mark('配置系统加载完成！');
 
     // 缓存文件夹
     FileUtil.createDir('data/temp', 'root', true);
@@ -51,7 +51,7 @@ export default class XYBot {
     global.pluginLoader = pluginLoader;
     await global.pluginLoader.load();
 
-    global.logger.info('XYBot 启动中...');
+    global.logger.mark('XYBot 启动中...');
 
     // 机器人
     global.bot = new Bot(global.config.number, global.config);

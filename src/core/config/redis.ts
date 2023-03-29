@@ -89,18 +89,18 @@ export class Redis implements RedisInterface {
     }
 
     this.client.on('connect', () => {
-      global.logger.info('redis已经连接完成！');
+      global.logger.mark('redis已经连接完成！');
     });
 
     this.client.on('ready', () => {
-      global.logger.info('redis已经准备完成！');
+      global.logger.mark('redis已经准备完成！');
     });
 
     this.client.on('error', (err) => {
       global.logger.error('redis错误', err);
     });
 
-    global.logger.info('redis初始化完成！');
+    global.logger.mark('redis初始化完成！');
   }
 
   public async getString(key: string): Promise<string> {

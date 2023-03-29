@@ -102,7 +102,7 @@ export default class GenshinCalendar extends BasePlugin {
   }
 
   async push() {
-    global.logger.info('开始推送原神日历...');
+    global.logger.mark('开始推送原神日历...');
 
     let groups = [];
     try {
@@ -124,7 +124,7 @@ export default class GenshinCalendar extends BasePlugin {
       }
     }
 
-    global.logger.info('推送原神日历完成！');
+    global.logger.mark('推送原神日历完成！');
   }
 
   /** 请求原神日历 */

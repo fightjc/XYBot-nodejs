@@ -127,7 +127,7 @@ export class PluginLoader implements PluginLoaderInterface {
    * 加载内部插件
    */
   private async loadInterior() {
-    global.logger.info('开始加载内部插件...');
+    global.logger.mark('开始加载内部插件...');
 
     // 群插件开关控制组件
     let pluginNameList: string[] = [];
@@ -137,14 +137,14 @@ export class PluginLoader implements PluginLoaderInterface {
     // 群插件冷却控制组件
     await debouncer.load();
 
-    global.logger.info(`内部插件加载完成！`);
+    global.logger.mark(`内部插件加载完成！`);
   }
 
   /**
    * 加载外部插件
    */
   private async loadExterior() {
-    global.logger.info('开始加载外部插件...');
+    global.logger.mark('开始加载外部插件...');
 
     const files: PluginFile[] = this.getPluginFiles();
     for (let file of files) {
@@ -177,14 +177,14 @@ export class PluginLoader implements PluginLoaderInterface {
     // 加载定时任务
     await this.loadScheduleTask();
 
-    global.logger.info(`外部插件加载完成！一共加载了${this.plugins.length}个外部插件！`);
+    global.logger.mark(`外部插件加载完成！一共加载了${this.plugins.length}个外部插件！`);
   }
 
   /**
    * 加载插件定时任务
    */
   private async loadScheduleTask() {
-    global.logger.info('开始加载定时任务...');
+    global.logger.mark('开始加载定时任务...');
     let count: number = 0; // 统计定时任务数量
 
     for (let plugin of this.plugins) {
@@ -222,7 +222,7 @@ export class PluginLoader implements PluginLoaderInterface {
       }
     }
 
-    global.logger.info(`定时任务加载完成！一共加载了${count}个定时任务！`);
+    global.logger.mark(`定时任务加载完成！一共加载了${count}个定时任务！`);
   }
 
   /**
