@@ -2,6 +2,11 @@ import fs, { Dirent } from 'node:fs'
 import { resolve } from 'path';
 import * as yaml from 'yaml';
 
+/**
+ * root - 项目目录
+ * config - 设置文件夹
+ * plugins - 插件文件夹
+ */
 export type PresetPlace = "root" | "config" | "plugins";
 
 interface FileUtilInterface {
@@ -36,6 +41,12 @@ interface FileUtilInterface {
    */
   createDir(dirName: string, place?: PresetPlace, recursive?: boolean): boolean;
   /**
+   * 删除文件
+   * @param fileName 文件路径
+   * @param place 预设目录
+   */
+  deleteFile(fileName: string, place?: PresetPlace): void;
+  /**
    * 读取文件
    * @param fileName 文件路径
    * @param place 预设目录
@@ -47,7 +58,7 @@ interface FileUtilInterface {
    * @param data 文件内容
    * @param place 预设目录
    */
-  writeFile(fileName: string, data: any, place?: PresetPlace);
+  writeFile(fileName: string, data: any, place?: PresetPlace): void;
   /**
    * 读取yaml文件
    * @param yamlName yaml文件名
@@ -109,6 +120,15 @@ class FileUtil implements FileUtilInterface {
     return exist;
   }
   
+  public deleteFile(fileName: string, place?: PresetPlace) {
+    const path: string = this.getFilePath(fileName, place);
+    fs.unlink(path, (err) => {
+      if (err) {
+        console.log(err);
+      }
+    })
+  }
+
   public loadFile(fileName: string, place?: PresetPlace): string {
     const path: string = this.getFilePath(fileName, place);
     return fs.readFileSync(path, 'utf-8');

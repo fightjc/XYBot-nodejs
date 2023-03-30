@@ -16,7 +16,7 @@ export default class GenshinCalendar extends BasePlugin {
       rules: [
         {
           reg: '^原神日历$',
-          func: 'getCalendar',
+          func: 'calendar',
           permission: 'everyone'
         },
         {
@@ -56,8 +56,8 @@ export default class GenshinCalendar extends BasePlugin {
     ];
   }
 
-  async getCalendar(event) {
-    const image = await this.fetchData();
+  async calendar(event) {
+    const image = await this.getCalendarImage();
     if (image != null) {
       await global.bot.sendGroupMsg(event.group_id, image);
     }
@@ -113,7 +113,7 @@ export default class GenshinCalendar extends BasePlugin {
     }
 
     if (groups.length > 0) {
-      const image = await this.fetchData();
+      const image = await this.getCalendarImage();
       if (image != null) {
         for (let group of groups) {
           try {
@@ -126,6 +126,34 @@ export default class GenshinCalendar extends BasePlugin {
     }
 
     global.logger.mark('推送原神日历完成！');
+  }
+
+  /** 获取日历图片 */
+  async getCalendarImage() {
+    // get list
+    let list = await this.fetchData();
+    if (!list || list.length == 0) {
+      return null;
+    }
+
+    // data to html
+    const templatePath = 'genshin/resources/template/calendar.art';
+    let templateData = FileUtil.loadFile(templatePath, 'plugins');
+    let html = template.render(templateData, {
+      dateTime: moment().format('YYYY-MM-DD'),
+      list: list
+    });
+
+    // html to image
+    const htmlPath = `genshin/resources/template/calendar.html`;
+    FileUtil.writeFile(htmlPath, html, 'plugins');
+    let path = `file://${FileUtil.getFilePath(htmlPath, 'plugins')}`;
+    let base64 = await renderer.screenshot(path, '#canvas');
+    
+    // delete temp file
+    FileUtil.deleteFile(htmlPath, 'plugins');
+
+    return segment.image(base64);
   }
 
   /** 请求原神日历 */
@@ -150,7 +178,7 @@ export default class GenshinCalendar extends BasePlugin {
     } catch(e) {
       global.logger.error(`生成原神日历失败: ${e}`);
     }
-    return null;
+    return [];
   }
 
   /**
@@ -263,17 +291,7 @@ export default class GenshinCalendar extends BasePlugin {
       }
     });
 
-    // data to image
-    let templateData = FileUtil.loadFile('genshin/resources/template/calendar.html', 'plugins');
-    let html = template.render(templateData, {
-      dateTime: moment().format('YYYY-MM-DD'),
-      list: announcelist
-    });
-    FileUtil.writeFile('data/temp/calendar.html', html, 'root'); // 生成临时文件
-    let path = `file://${FileUtil.getFilePath('data/temp/calendar.html', 'root')}`;
-    let base64 = await renderer.screenshot(path, '#canvas');
-    
-    return segment.image(base64);
+    return announcelist;
   }
 
   /** 获取订阅群列表 */

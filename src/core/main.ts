@@ -37,9 +37,6 @@ export default class XYBot {
     // 配置
     global.config = botConfig;
     global.logger.mark('配置系统加载完成！');
-
-    // 缓存文件夹
-    FileUtil.createDir('data/temp', 'root', true);
   }
 
   public async run() {
