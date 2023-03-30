@@ -68,6 +68,7 @@ export default class GenshinCalendar extends BasePlugin {
     let args = event.raw_message.split(' ').filter((e) => e);
     if (args.length < 2) {
       await global.bot.sendGroupMsg(event.group_id, '使用方式：原神日历 [开启推送/关闭推送/状态]');
+      return;
     }
 
     // 解析
@@ -265,13 +266,13 @@ export default class GenshinCalendar extends BasePlugin {
     // data to image
     let templateData = FileUtil.loadFile('genshin/resources/template/calendar.html', 'plugins');
     let html = template.render(templateData, {
-      dateTime: moment().format('YYY-MM-DD'),
+      dateTime: moment().format('YYYY-MM-DD'),
       list: announcelist
     });
-
     FileUtil.writeFile('data/temp/calendar.html', html, 'root'); // 生成临时文件
     let path = `file://${FileUtil.getFilePath('data/temp/calendar.html', 'root')}`;
     let base64 = await renderer.screenshot(path, '#canvas');
+    
     return segment.image(base64);
   }
 
