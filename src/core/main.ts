@@ -5,7 +5,6 @@ import botConfig from './config/botConfig';
 import logger from './config/logger';
 import redis from './config/redis';
 import pluginLoader from './plugins/pluginLoader';
-import FileUtil from '../utils/file';
 import renderer from '../utils/renderer';
 
 process.title = 'xybot';
