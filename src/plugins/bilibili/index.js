@@ -1,6 +1,9 @@
+import template from 'art-template';
+
 import BasePlugin from '../../core/plugins/basePlugin';
-import FileUtil from '../../utils/file';
 import * as apiHelper from './services/apiHelper';
+import FileUtil from '../../utils/file';
+import renderer from '../../utils/renderer';
 
 export default class Bilibili extends BasePlugin {
   constructor() {
@@ -17,8 +20,7 @@ export default class Bilibili extends BasePlugin {
       ],
       tasks: [
         {
-          // cron: '0 0/5 * * * ?', // 每隔5分钟查看一次b站订阅
-          cron: '0 0/1 * * * ?', // test
+          cron: '0 0/5 * * * ?', // 每隔5分钟查看一次b站订阅
           func: 'lookUp'
         }
       ]
@@ -57,7 +59,5 @@ export default class Bilibili extends BasePlugin {
 
   async lookUp() {
     global.logger.mark('查看b站订阅');
-    // const data = await apiHelper.getUserDynamic(401742377);
-    // console.log(data);
   }
 }

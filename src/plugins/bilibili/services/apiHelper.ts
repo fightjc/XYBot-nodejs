@@ -86,35 +86,131 @@ export async function getUserInfo(mid: number): Promise<BILI_UserData | null> {
   return null;
 }
 
-export async function getUserDynamic(mid: string, offset?: string) {
+interface BILI_Dynamic_Normal {
+  desc: string,
+  pics: {
+    width: number,
+    height: number,
+    src: string
+  }[]
+}
+
+interface BILI_Dynmic_Video {
+  dynamic: string,
+  title: string,
+  desc: string,
+  pic: string,
+  view: number,
+  like: number,
+  coin: number,
+  collect: number
+}
+
+interface BILI_DynamicDto {
+  user: {
+    uid: number,
+    uname: string,
+    face: string,
+    pendant?: string,
+    ornament?: {
+      card: string,
+      num: string,
+      color: string
+    }
+  },
+  dynamicId: string,
+  dateTime: string,
+  type: number,
+  content: BILI_Dynamic_Normal | BILI_Dynmic_Video | null
+}
+
+/**
+ * 获取指定b站用户最新的动态
+ * @param mid b站用户id
+ * @param offset 动态id，如果有值则只查询此动态id往后的新动态
+ */
+export async function getUserDynamic(mid: string, offset?: string): Promise<BILI_DynamicDto[]> {
   const url = 'https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history';
   const params = {
     'host_uid': mid,
     'need_top': 0,
-    'platform': 'web'
+    'platform': 'web',
+    // 'offset_dynamic_id': '' // 从 offset_dynamic_id 开始往前找10条
   };
-  if (offset) {
-    params['offset_dynamic_id'] = offset;
-  }
   
-  let list = [];
+  let list: BILI_DynamicDto[] = [];
   try {
     const response = await gets(url, params, headers);
-    console.log(response);
     if (response.code == 0) {
-      const data = response['data'];
-      const cards = data['cards'];
-      const max_result_count = 1; // 一次最多取最近3条动态
+      const cards = response.data.cards;
+      const max_result_count = 3; // 一次最多取最近3条动态
       for (let i = 0; i < cards.length && i < max_result_count; i++) {
         const card = cards[i];
         const desc = card['desc'];
-        if (offset && desc['dynamic_id'] == offset) {
+
+        if (offset && desc.dynamic_id_str == offset) {
           break;
         }
-        if (moment().milliseconds() - desc['timestamp'] * 1000 > 5 * 60 * 1000) {
+
+        if (moment().valueOf() - desc.timestamp * 1000 > 5 * 60 * 1000) {
           // 大于5分钟的动态不推送
           break;
         }
+
+        // up主信息
+        const info = desc.user_profile.info;
+        const userData = {
+          uid: info.uid,
+          uname: info.uname,
+          face: info.face,
+          pendant: desc.user_profile.pendant?.image,
+          ornament: {
+            card: desc.user_profile.decorate_card?.card_url,
+            num: desc.user_profile.decorate_card?.fan.num_desc,
+            color: desc.user_profile.decorate_card?.fan.color
+          }
+        };
+
+        // 动态信息
+        const type: number = desc.type;
+        let content;
+        if (type == 2) { // 发布文章
+          const item = JSON.parse(card.card).item;
+          let picList = item.pictures.map(pic => {
+            return {
+              width: pic.img_width,
+              height: pic.img_height,
+              src: pic.img_src
+            }
+          });
+          content = {
+            desc: item.description,
+            pics: picList
+          } as BILI_Dynamic_Normal;
+        } else if (type == 8) { // 发布视频
+          const cardInfo = JSON.parse(card.card);
+          content = {
+            dynamic: cardInfo.dynamic,
+            title: cardInfo.title,
+            desc: cardInfo.desc,
+            pic: cardInfo.pic,
+            view: cardInfo.stat.view,
+            like: cardInfo.stat.like,
+            coin: cardInfo.stat.coin,
+            collect: cardInfo.stat.favorite
+          } as BILI_Dynmic_Video;
+        } else {
+          // 其它动态类型暂不处理
+          continue;
+        }
+        
+        list.push({
+          user: userData,
+          dynamicId: desc.dynamic_id_str,
+          dateTime: moment(desc.timestamp * 1000).format('YYYY-MM-DD HH:mm:ss'),
+          type: type,
+          content: content
+        });
       }
     } else {
       global.logger.error(`访问bilibili获取用户动态接口返回失败: ${response.message}`);
@@ -122,4 +218,6 @@ export async function getUserDynamic(mid: string, offset?: string) {
   } catch(e) {
     global.logger.error(`访问bilibili获取用户动态接口失败: ${e}`);
   }
+
+  return list;
 }
