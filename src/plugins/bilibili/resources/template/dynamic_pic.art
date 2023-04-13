@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <style>
+      body { padding: 0; margin: 0; }
+      .wrapper { width: 632px; padding: 0 20px 0 88px; position: relative; font-family: -apple-system,BlinkMacSystemFont,'Helvetica Neue',Helvetica,Arial,'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif; }
+      .wrapper > .avatar { position: absolute; width: 86.4px; height: 86.4px; left: 0; top: 0; display: flex; align-items: center; justify-content: center; }
+      .wrapper > .avatar > .avatar_canvas { width: 48px; height: 48px; }
+      .wrapper > .avatar > .avatar_canvas > .image_layer { position: absolute; width: 48px; height: 48px; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+      .wrapper > .avatar > .avatar_canvas > .face { border-radius: 50%; opacity: 1; background: url("<%= user.face %>") center center / cover no-repeat; }
+      .wrapper > .avatar > .avatar_canvas > .pendant { width: 66px; height: 66px; background: url("<%= user.pendant %>") center center / cover no-repeat; }
+      .wrapper > .header { height: 62px; padding-top: 16px; }
+      .wrapper > .header > .name { font-weight: 500; color: #f69; }
+      .wrapper > .header > .time { color: #9499a0; }
+      .wrapper > .header > .ornament { width: 110px; height: 33px; position: absolute; right: 44px; top: 22px; }
+      .wrapper > .header > .ornament > img { width: 100%; height: 100%; }
+      .wrapper > .header > .ornament > span { position: absolute; right: 39px; top: 11px; font-size: 12px; color: <%= user.ornament.color %>; }
+      .wrapper > .body { margin-top: 8px; }
+      .wrapper > .body > .dynamic { padding-right: 10px; font-weight: 400; color: #18191c; white-space: pre-wrap; word-break: break-word; }
+      .wrapper > .body > .pics { text-align: center; }
+      .wrapper > .body > .pics > img { width: 420px; }
+    </style>
+    <style>
+      .fs-medium { font-size: 17px; line-height: 32px; }
+      .fs-small { font-size: 13px; line-height: 18px; }
+      .ellipsis { -webkit-line-clamp: 2; -webkit-box-orient: vertical; display: -webkit-box; overflow: hidden; text-overflow: ellipsis; word-break: break-all; }
+      .play { background: url("../images/play.svg") center center / cover no-repeat; }
+      .like { background: url("../images/like.svg") center center / cover no-repeat; }
+      .coin { background: url("../images/coin.svg") center center / cover no-repeat; }
+      .collect { background: url("../images/collect.svg") center center / cover no-repeat; }
+    </style>
+  </head>
+  <body>
+    <div id="canvas" class="wrapper">
+      <div class="avatar">
+        <div class="avatar_canvas">
+          <div class="image_layer face"></div>
+          <div class="image_layer pendant"></div>
+        </div>
+      </div>
+      <div class="header">
+        <div class="name fs-medium"><%= user.uname %></div>
+        <div class="time fs-small"><%= dateTime %> · 投稿了视频</div>
+        <div class="ornament">
+          <img src="<%= user.ornament.card %>">
+          <span><%= user.ornament.num %></span>
+        </div>
+      </div>
+      <div class="body">
+        <div class="dynamic"><%= content.desc %></div>
+        <div class="pics">
+          <% for (let pic of content.pics) { %>
+          <img src="<%= pic.src %>">
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
