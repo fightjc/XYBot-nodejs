@@ -127,7 +127,7 @@ interface BILI_DynamicDto {
 /**
  * 获取指定b站用户最新的动态
  * @param mid b站用户id
- * @param offset 动态id，如果有值则只查询此动态id往后的新动态
+ * @param offset 动态id，如果有值则只查询此动态id往前的动态
  */
 export async function getUserDynamic(mid: string, offset?: string): Promise<BILI_DynamicDto[]> {
   const url = 'https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history';
@@ -174,7 +174,7 @@ export async function getUserDynamic(mid: string, offset?: string): Promise<BILI
         // 动态信息
         const type: number = desc.type;
         let content;
-        if (type == 2) { // 发布文章
+        if (type == 2) { // 发布图文
           const item = JSON.parse(card.card).item;
           let picList = item.pictures.map(pic => {
             return {

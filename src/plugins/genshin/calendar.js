@@ -296,11 +296,9 @@ export default class GenshinCalendar extends BasePlugin {
 
   /** 获取订阅群列表 */
   getSubscribes() {
-    let groups = [];
     try {
       let data = FileUtil.loadYAML(this.filePath, 'plugins');
-      groups = data['calendar'] ?? [];
-      return groups;
+      return data['calendar'] ?? [];
     } catch (e) {
       global.logger.error('获取原神日历配置文件失败', e);
       throw new Error('获取原神日历配置文件失败');
@@ -331,7 +329,7 @@ export default class GenshinCalendar extends BasePlugin {
       }
     } else {
       if (index > -1) {
-        groups.splice(groupId, 1);
+        groups.splice(index, 1);
         hasChange = true;
       }
     }
