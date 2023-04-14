@@ -1,3 +1,4 @@
+import moment from 'moment';
 import { segment } from 'oicq';
 import BasePlugin from '../../core/plugins/basePlugin';
 import { random } from '../../utils/common';
@@ -84,9 +85,12 @@ export default class DailyLuck extends BasePlugin {
       let list = JSON.parse(data);
       list.push(userId);
 
-      const c = new Date();
-      let t = new Date(c.getFullYear(), c.getMonth(), c.getDate() + 1, 4); // 第二天早上4点
-      let timeout = Math.trunc((t.getTime() - c.getTime()) / 1000);
+      const current = moment();
+      // 早上四点重置抽签记录
+      let expired = current.hours() >= 4
+          ? moment().add(1, 'day').set({ 'h': 4, 'm': 0, 's': 0 })
+          : moment().set({ 'h': 4, 'm': 0, 's': 0 });
+      let timeout = Math.trunc((expired.valueOf() - current.valueOf()) / 1000);
       await global.redis.setString(key, JSON.stringify(list), timeout);
     } catch(e) {
       global.logger.error(`解析redis[key:'${key}']JSON值失败`, e);
