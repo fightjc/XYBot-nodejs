@@ -127,7 +127,7 @@ ${userInfo.name} (${userInfo.mid})
       for (var i = 0; i < list.length; i++)  {
         // 获取动态图片
         const dynamic = list[i];
-        const image = this.getDynamicImage(dynamic);
+        const image = await this.getDynamicImage(dynamic);
         if (image != null) {
           // 逐个群推送
           for (let group of groups) {
