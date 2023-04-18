@@ -55,7 +55,25 @@ export default class Bilibili extends BasePlugin {
     if (args[1] == '帮助') {
       await global.bot.sendGroupMsg(event.group_id, usage);
     } else if (args[1] == '列表') {
+      try {
+        config = this.getConfig();
+      } catch (e) {
+        config = this.defaultConfig;
+      }
+      let mids = config.groups[event.group_id] ?? [];
+      let text = `当前已订阅 ${mids.length} 个\n`;
+      //TODO: how to get name?
+      mids.map((m) => text += `${m}\n`);
+      await global.bot.sendGroupMsg(event.group_id, msg);
     } else if (args[1] == '查询') {
+      let text = '为您查询到下面结果:\n';
+      let keyword = args[2];
+      const data = await apiHelper.searchUser(keyword);
+      data.map((user) => {
+        text += `\n${user.uname} (${user.mid})\n粉丝: ${user.fans}\n个性签名: ${user.usign}\n`
+      });
+      const msg = [ at, ' ',  text ];
+      await global.bot.sendGroupMsg(event.group_id, msg);
     } else if (args[1] == 'up') {
       let mid = args[2];
       const at = segment.at(event.sender.user_id);
@@ -108,7 +126,7 @@ ${userInfo.name} (${userInfo.mid})
     try {
       config = this.getConfig();
     } catch (e) {
-      config = {};
+      config = this.defaultConfig;
     }
 
     for (let mid in config.mids) {
@@ -128,14 +146,15 @@ ${userInfo.name} (${userInfo.mid})
         // 获取动态图片
         const dynamic = list[i];
         const image = await this.getDynamicImage(dynamic);
-        if (image != null) {
-          // 逐个群推送
-          for (let group of groups) {
-            try {
-              await global.bot.sendGroupMsg(group, image);
-            } catch (e) {
-              global.logger.error(`推送b站动态 ${dynamic.dynamicId} 到群 ${group} 失败: ${e}`);
-            }
+        if (image == null) {
+          continue;
+        }
+        // 逐个群推送
+        for (let group of groups) {
+          try {
+            await global.bot.sendGroupMsg(group, image);
+          } catch (e) {
+            global.logger.error(`推送b站动态 ${dynamic.dynamicId} 到群 ${group} 失败: ${e}`);
           }
         }
       }
