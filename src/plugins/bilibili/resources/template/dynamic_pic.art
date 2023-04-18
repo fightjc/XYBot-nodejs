@@ -42,10 +42,12 @@
       <div class="header">
         <div class="name fs-medium"><%= user.uname %></div>
         <div class="time fs-small"><%= dateTime %> · 投稿了视频</div>
+        <% if (user.ornament) { %>
         <div class="ornament">
           <img src="<%= user.ornament.card %>">
           <span><%= user.ornament.num %></span>
         </div>
+        <% } %>
       </div>
       <div class="body">
         <div class="dynamic"><%= content.desc %></div>

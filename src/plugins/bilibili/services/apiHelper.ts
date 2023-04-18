@@ -159,17 +159,19 @@ export async function getUserDynamic(mid: string, offset?: string): Promise<BILI
 
         // up主信息
         const info = desc.user_profile.info;
-        const userData = {
+        let userData = {
           uid: info.uid,
           uname: info.uname,
           face: info.face,
-          pendant: desc.user_profile.pendant?.image,
-          ornament: {
-            card: desc.user_profile.decorate_card?.card_url,
-            num: desc.user_profile.decorate_card?.fan.num_desc,
-            color: desc.user_profile.decorate_card?.fan.color
-          }
+          pendant: desc.user_profile.pendant?.image
         };
+        if (desc.user_profile.decorate_card) {
+          userData['ornament'] = {
+            card: desc.user_profile.decorate_card.card_url,
+            num: desc.user_profile.decorate_card.fan.num_desc,
+            color: desc.user_profile.decorate_card.fan.color
+          }
+        }
 
         // 动态信息
         const type: number = desc.type;
