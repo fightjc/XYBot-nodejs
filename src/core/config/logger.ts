@@ -49,11 +49,11 @@ export class Logger implements LoggerInterface {
       appenders: { console, logFile, errFile },
       categories: {
         default: { appenders: ['console'], level: 'debug' },
-        command: { appenders: ['console', 'logFile'], level: 'mark' },
+        command: { appenders: ['console', 'logFile'], level: 'info' },
         error: { appenders: ['console', 'errFile'], level: 'error' }
       },
       pm2: true, // 使用pm2需要设置为true，这样日志输出才不会被pm2拦截
-      disableClustering: true
+      // disableClustering: true
     });
 
     this.defaultLogger = log4js.getLogger('default');

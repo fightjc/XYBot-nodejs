@@ -175,7 +175,7 @@ export async function getUserDynamic(mid: string, offset?: string): Promise<BILI
 
         // 动态信息
         const type: number = desc.type;
-        let content;
+        let content: BILI_Dynamic_Normal | BILI_Dynmic_Video;
         if (type == 2) { // 发布图文
           const item = JSON.parse(card.card).item;
           let picList = item.pictures.map(pic => {

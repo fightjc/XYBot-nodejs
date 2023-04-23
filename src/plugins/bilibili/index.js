@@ -10,7 +10,7 @@ export default class Bilibili extends BasePlugin {
   constructor() {
     super({
       name: 'b站',
-      desc: 'b站',
+      desc: 'b站用户信息查询，订阅b站用户动态推送',
       event: 'message.group.normal',
       rules: [
         {

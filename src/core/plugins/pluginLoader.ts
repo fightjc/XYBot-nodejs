@@ -64,8 +64,8 @@ export class PluginLoader implements PluginLoaderInterface {
     }
 
     for (let plugin of this.plugins) {
-      // 群插件是否启用
-      if (!await this.switcher.checkGroupEnabled(event['group_id'], plugin.key)) {
+      // 是否是群插件且启用
+      if (event.message_type == 'group' && !await this.switcher.checkGroupEnabled(event['group_id'], plugin.key)) {
         continue;
       }
 

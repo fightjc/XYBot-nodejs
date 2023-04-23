@@ -73,6 +73,10 @@ export default class BasePlugin implements BasePluginInterface {
       if (rule.permission == 'admin' && [ 'owner', 'admin' ].includes(sender['role'])) {
         return true;
       }
+
+      if (rule.permission == 'friend' && event.sub_type == 'friend') {
+        return true;
+      }
     }
 
     return false;
