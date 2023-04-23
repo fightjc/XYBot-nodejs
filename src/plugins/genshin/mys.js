@@ -45,6 +45,9 @@ export default class MYS extends BasePlugin {
     } else if (args[1] == '原神签到') {
       let msg = await mysHelper.signIn(event.sender.user_id);
       await global.bot.sendPrivateMsg(event.sender.user_id, msg);
+    } else {
+      // 一级菜单错误
+      await global.bot.sendPrivateMsg(event.sender.user_id, usage);
     }
   }
 

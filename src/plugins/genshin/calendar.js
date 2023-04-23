@@ -67,10 +67,12 @@ export default class GenshinCalendar extends BasePlugin {
   }
 
   async handle(event) {
+    const usage = '使用方式：原神日历 [开启推送/关闭推送/状态]';
+
     // 判断参数数量
     let args = event.raw_message.split(' ').filter((e) => e);
     if (args.length < 2) {
-      await global.bot.sendGroupMsg(event.group_id, '使用方式：原神日历 [开启推送/关闭推送/状态]');
+      await global.bot.sendGroupMsg(event.group_id, usage);
       return;
     }
 
@@ -101,7 +103,7 @@ export default class GenshinCalendar extends BasePlugin {
       await global.bot.sendGroupMsg(event.group_id, msg);
     } else {
       // 一级菜单错误
-      await global.bot.sendGroupMsg(event.group_id, '使用方式：原神日历 [开启推送/关闭推送/状态]');
+      await global.bot.sendGroupMsg(event.group_id, usage);
     }
   }
 
