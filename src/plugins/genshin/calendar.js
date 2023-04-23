@@ -35,11 +35,14 @@ export default class GenshinCalendar extends BasePlugin {
 
     // 初始化配置文件
     this.filePath = 'genshin/config/calendar.yml';
+    this.defaultConfig = {
+      'calendar': []
+    };
     if (!FileUtil.isExist(FileUtil.getFilePath(this.filePath, 'plugins'))) {
       global.logger.info(`检测到配置文件 ${this.filePath} 不存在，准备创建`);
 
       FileUtil.createDir('genshin/config', 'plugins');
-      FileUtil.writeYAML(this.filePath, { 'calendar': [] }, 'plugins');
+      FileUtil.writeYAML(this.filePath, this.defaultConfig, 'plugins');
     }
 
     // 忽略推送Id
