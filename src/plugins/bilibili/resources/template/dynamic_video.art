@@ -15,8 +15,8 @@
       .wrapper > .header > .time { color: #9499a0; }
       .wrapper > .header > .ornament { width: 110px; height: 33px; position: absolute; right: 44px; top: 22px; }
       .wrapper > .header > .ornament > img { width: 100%; height: 100%; }
-      .wrapper > .header > .ornament > span { position: absolute; right: 39px; top: 11px; font-size: 12px; color: <%= user.ornament.color %>; }
-      .wrapper > .body { margin-top: 8px; }
+      .wrapper > .header > .ornament > span { position: absolute; right: 39px; top: 11px; font-size: 12px; color: <%= user.ornament?.color ?? 'white' %>; }
+      .wrapper > .body { margin-top: 8px; padding-bottom: 8px; }
       .wrapper > .body > .dynamic { padding-right: 10px; font-weight: 400; color: #18191c; white-space: pre-wrap; word-break: break-word; }
       .wrapper > .body > .video { margin-top: 10px; display: flex; height: 132px; overflow: hidden; }
       .wrapper > .body > .video > .cover { height: 100%; width: 236px; border-radius: 6px 0 0 6px; background: url("<%= content.pic %>") center center / cover no-repeat; }
@@ -48,10 +48,12 @@
       <div class="header">
         <div class="name fs-medium"><%= user.uname %></div>
         <div class="time fs-small"><%= dateTime %> · 投稿了视频</div>
+        <% if (user.ornament) { %>
         <div class="ornament">
-          <img src="<%= user.ornament.card %>">
-          <span><%= user.ornament.num %></span>
+          <img src="<%= user.ornament?.card %>">
+          <span><%= user.ornament?.num %></span>
         </div>
+        <% } %>
       </div>
       <div class="body">
         <div class="dynamic"><%= content.dynamic %></div>
