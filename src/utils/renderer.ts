@@ -17,7 +17,7 @@ interface RendererInterface {
 
 export class Renderer implements RendererInterface {
   private browser?: Browser;
-	private screenshotCount: number = 0;
+  private screenshotCount: number = 0;
 
   constructor() {
     this.launchBrowser().then(() => {});
@@ -123,12 +123,12 @@ export class Renderer implements RendererInterface {
       throw e;
     }
   }
-	
-	// private async pageLoaded(page: Page) {
-	// 	await page.waitForFunction(() => {
-	// 		return document.readyState === "complete";
-	// 	}, { timeout: 10000 });
-	// }
+  
+  // private async pageLoaded(page: Page) {
+  //   await page.waitForFunction(() => {
+  //     return document.readyState === "complete";
+  //   }, { timeout: 10000 });
+  // }
 }
 
 export default new Renderer();

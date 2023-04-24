@@ -131,9 +131,9 @@ export class Redis implements RedisInterface {
     return await this.client.hGet(key, field) ?? '';
   }
 
-	public async setHashField(key: string, field: string, value: string): Promise<void> {
-		await this.client.hSet(key, field, value);
-	}
+  public async setHashField(key: string, field: string, value: string): Promise<void> {
+    await this.client.hSet(key, field, value);
+  }
 
   public async setTimeout(key: string, time: number): Promise<void> {
     await this.client.expire(key, time);

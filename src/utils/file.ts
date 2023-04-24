@@ -86,12 +86,12 @@ class FileUtil implements FileUtilInterface {
   }
 
   public isExist(path: string): boolean {
-		try {
-			fs.accessSync(path);
-			return true;
-		} catch (err) {
-			return false;
-		}
+    try {
+      fs.accessSync(path);
+      return true;
+    } catch (err) {
+      return false;
+    }
   }
 
   public getFilePath(path: string, place: PresetPlace = 'root'): string {

@@ -13,12 +13,12 @@ type BotData = {
 
 export class BotConfig {
   public readonly number: number;
-	public readonly password: string;
+  public readonly password: string;
   public readonly master: number;
   /** 1:安卓手机(默认) 2:aPad 3:安卓手表 4:MacOS 5:iPad */
   public readonly platform: 1 | 2 | 3 | 4 | 5;
   /** 日志等级，默认info (打印日志会降低性能，若消息量巨大建议修改此参数) */
-	public readonly log_level: 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'mark' | 'off';
+  public readonly log_level: 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'mark' | 'off';
   /** 群聊和频道中过滤自己的消息(默认true) */
   public readonly ignore_self: boolean;
   /** 被风控时是否尝试用分片发送，默认true */

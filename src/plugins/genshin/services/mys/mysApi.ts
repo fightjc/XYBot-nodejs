@@ -20,7 +20,7 @@ const defaultSignHeaders = {
   'Referer': `https://webstatic.mihoyo.com/bbs/event/signin-ys/index.html?bbs_auth_required=true&act_id=${activityId}&utm_source=bbs&utm_medium=mys&utm_campaign=icon`,
   'x-rpc-app_version': genshinAppVersion,
   'x-rpc-client_type': genshinClientType,
-	"x-rpc-platform": "android",
+  'x-rpc-platform': 'android',
   'x-rpc-device_model': device,
   'x-rpc-device_name': device,
   'x-rpc-channel': 'miyousheluodi',
