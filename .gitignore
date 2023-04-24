@@ -1,8 +1,8 @@
 # project
 .DS_Store
 /config
-data/
-logs/
-node_modules/
-package-lock.json
+/data/
+/logs/
+/node_modules/
+/package-lock.json
 dump.rdb

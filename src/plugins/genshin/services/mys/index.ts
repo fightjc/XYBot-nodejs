@@ -1,12 +1,12 @@
 import * as mysApi from './mysApi'
-import mysConfig from './mysConfig'
+import mysConfig, { MysConfigData } from './mysConfig'
 import { uuidv4 } from '../../../../utils/common';
 
 /**
  * 通过缓存到本地的米游社账号信息进行原神签到
  * @param config 本地米游社账号缓存数据
  */
-async function mysGenshinSignIn(config: any): Promise<string> {
+async function mysGenshinSignIn(config: MysConfigData): Promise<string> {
   // 获取原神签到信息
   const signInfo = await mysApi.getSignInfo(config.uid, config.region, config.deviceId, config.cookie);
   if (signInfo == null) {
@@ -79,7 +79,7 @@ export async function saveConfig(userId: string, cookie: string): Promise<string
     return '暂不支持国际服签到';
   }
 
-  const config = {
+  const config: MysConfigData = {
     uid: data.game_uid,
     region: data.region,
     deviceId: uuidv4(), // 随机设备id

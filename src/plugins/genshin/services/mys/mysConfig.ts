@@ -1,6 +1,6 @@
 import FileUtil from '../../../../utils/file'
 
-type MysConfigData = {
+export type MysConfigData = {
   uid: string,
   region: string,
   deviceId: string,

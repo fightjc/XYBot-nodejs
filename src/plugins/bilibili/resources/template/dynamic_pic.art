@@ -41,7 +41,7 @@
       </div>
       <div class="header">
         <div class="name fs-medium"><%= user.uname %></div>
-        <div class="time fs-small"><%= dateTime %> · 投稿了视频</div>
+        <div class="time fs-small"><%= dateTime %> · 投稿了图文</div>
         <% if (user.ornament) { %>
         <div class="ornament">
           <img src="<%= user.ornament?.card %>">

@@ -149,10 +149,13 @@ ${userInfo.name} (${userInfo.mid})
         if (image == null) {
           continue;
         }
+        const text = `${dynamic.user.uname} (${dynamic.user.uid}) 于 ${dynamic.dateTime} 发布了动态
+详情点击: https://t.bilibili/com/${dynamic.dynamicId}\n`;
         // 逐个群推送
+        const msg = [text, image];
         for (let group of groups) {
           try {
-            await global.bot.sendGroupMsg(group, image);
+            await global.bot.sendGroupMsg(group, msg);
           } catch (e) {
             global.logger.error(`推送b站动态 ${dynamic.dynamicId} 到群 ${group} 失败: ${e}`);
           }
