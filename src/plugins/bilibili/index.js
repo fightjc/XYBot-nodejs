@@ -149,8 +149,7 @@ ${userInfo.name} (${userInfo.mid})
         if (image == null) {
           continue;
         }
-        const text = `${dynamic.user.uname} (${dynamic.user.uid}) 于 ${dynamic.dateTime} 发布了动态
-详情点击: https://t.bilibili/com/${dynamic.dynamicId}\n`;
+        const text = `${dynamic.user.uname} (${dynamic.user.uid}) 于 ${dynamic.dateTime} 发布了动态，详情点击: https://t.bilibili.com/${dynamic.dynamicId}\n`;
         // 逐个群推送
         const msg = [text, image];
         for (let group of groups) {
