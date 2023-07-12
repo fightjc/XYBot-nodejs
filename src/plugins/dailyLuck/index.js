@@ -21,7 +21,7 @@ export default class DailyLuck extends BasePlugin {
 
     // 预加载抽签列表
     try  {
-      let data = JSON.parse(FileUtil.loadFile('src/plugins/dailyLuck/gacha.json')) || { 'gacha': [] };
+      let data = JSON.parse(FileUtil.loadFile('dailyLuck/gacha.json', 'plugins')) || { 'gacha': [] };
       this.list = data.gacha;
       this.sum = this.list.reduce((prev, item) => (prev + item.weight), 0);
     } catch(e) {
