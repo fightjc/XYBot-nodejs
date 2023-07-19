@@ -1,4 +1,4 @@
-import puppeteer, { Browser, Page, KnownDevices } from 'puppeteer'
+import puppeteer, { Browser, Page, KnownDevices, ScreenshotOptions } from 'puppeteer'
 
 interface RendererInterface {
   /** 关闭浏览器 */
@@ -68,7 +68,7 @@ export class Renderer implements RendererInterface {
     this.screenshotCount = 0;
   }
 
-  public async screenshot(url: string, selector?: string): Promise<string> {
+  public async screenshot(url: string, selector?: string, savePath?: string): Promise<string> {
     if (!this.browser) {
       throw new Error('浏览器未启动');
     }
@@ -91,22 +91,23 @@ export class Renderer implements RendererInterface {
       // await page.evaluate((selector) => {}, '');
 
       let base64: string | Buffer = '';
+      let options: ScreenshotOptions = savePath ? {
+        path: savePath,
+        type: 'jpeg',
+        quality: 90,
+      } : {
+        type: 'jpeg',
+        quality: 90,
+        encoding: 'base64'
+      };
       if (selector) {
         const $selector = await page.$(selector);
         if ($selector) {
-          base64 = await $selector.screenshot({
-            type: 'jpeg',
-            quality: 90,
-            encoding: 'base64'
-          });
+          base64 = await $selector.screenshot(options);
         }
       } else {
-        base64 = await page.screenshot({
-          type: 'jpeg',
-          quality: 90,
-          encoding: 'base64',
-          fullPage: true
-        });
+        options.fullPage = true;
+        base64 = await page.screenshot(options);
       }
       
       await page.close();

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <style>
+      body { padding: 0; margin: 0; }
+      .wrapper { background-color: #f6f2ee; width: 696px; padding: 5px; }
+      .talent, .weapon { margin: 10px 0; }
+      .title { height: 37px; line-height: 37px; text-align: center; font-weight: bold; font-size: 18px; background-image: url("../images/miscellaneous/text_out.png"); background-repeat: no-repeat; background-position: center; }
+      .region { font-size: 16px; }
+      .list { display: flex; flex-wrap: wrap; justify-content: flex-start; }
+      .list > .item { flex-basis: 12.5%; max-width: 81px; margin: 3px; display: grid; grid-template-rows: 81px 20px; } /* 一行8个 */
+      .list > .item > .name { font-size: 13px; text-align: center; background-color: white; }
+      .list > .item > .pic { position: relative; width: 81px; height: 81px; }
+      .list > .item > .pic > img { position: absolute; width: 100%; height: 100%; }
+      .divide { display: flex; height: 10px; }
+      .divide > .left, .divide > .right { flex: 0; }
+      .divide > .line { flex: 1; }
+    </style>
+  </head>
+  <body>
+    <div id="canvas" class="wrapper">
+      <div class="talent">
+        <div class="title"><%= date + "素材可升天赋角色" %></div>
+        <% for (let region of regions) { %>
+          <div class="region"><%= region %></div>
+          <div class="list">
+            <% for (let talent of talents[region]) { %>
+              <div class="item">
+                <div class="pic">
+                  <img src="../images/miscellaneous/bg_rarity_<%= talent.rarity %>.png" />
+                  <img src="../images/characters/<%= talent.fileName %>.png" />
+                </div>
+                <div class="name"><%= talent.name %></div>
+              </div>
+            <% } %>
+          </div>
+        <% } %>
+      </div>
+      <div class="divide">
+        <img class="left" src="../images/miscellaneous/border_corner_left.png" />
+        <img class="line" src="../images/miscellaneous/border_line.png" />
+        <img class="right" src="../images/miscellaneous/border_corner_right.png" />
+      </div>
+      <div class="weapon">
+        <div class="title"><%= date + "素材可突破武器" %></div>
+        <% for (let region of regions) { %>
+          <div class="region"><%= region %></div>
+          <div class="list">
+            <% for (let weapon of weapons[region]) { %>
+              <div class="item">
+                <div class="pic">
+                  <img src="../images/miscellaneous/bg_rarity_<%= weapon.rarity %>.png" />
+                  <img src="../images/weapons/<%= weapon.fileName %>.png" />
+                </div>
+                <div class="name"><%= weapon.name %></div>
+              </div>
+              <% } %>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </body>
+</html>
