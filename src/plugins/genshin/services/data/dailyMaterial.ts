@@ -4,9 +4,9 @@ import {
   IndexFile,
   DayType,
   CharacterTalentMaterial, WeaponAscensionMaterial
-} from './types/data';
-import FileUtil from '../../../utils/file';
-import renderer from '../../../utils/renderer';
+} from '../types/data';
+import FileUtil from '../../../../utils/file';
+import renderer from '../../../../utils/renderer';
 
 const indexFolder = 'genshin/resources/index';
 const dataFolder = 'genshin/resources/data';
