@@ -150,7 +150,7 @@ export class PluginLoader implements PluginLoaderInterface {
     for (let file of files) {
       try {
         let pluginClass = await import(file.path);
-        if (!pluginClass.default) {
+        if (!pluginClass.default || typeof pluginClass.default !== 'function') {
           continue;
         }
 

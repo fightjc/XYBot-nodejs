@@ -23,7 +23,7 @@ export default class DailyMaterial extends BasePlugin {
           permission: 'admin'
         },
         {
-          reg: '^(每日|今日|今天)(素材|材料)[\\s+\\S+]$',
+          reg: '^(每日|今日|今天)(素材|材料)(\\s+\\S+)*$',
           func: 'handle',
           permission: 'everyone'
         },
