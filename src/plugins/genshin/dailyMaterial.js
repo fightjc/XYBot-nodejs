@@ -1,4 +1,5 @@
 import moment from 'moment';
+import { segment } from 'oicq';
 
 import BasePlugin from '../../core/plugins/basePlugin';
 import FileUtil from '../../utils/file';
@@ -60,7 +61,7 @@ export default class DailyMaterial extends BasePlugin {
 
     let imageNames = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
     // 默认当天
-    let day = moment.hours() >= 4 ? moment().day() : moment().add(-1, 'day').day();
+    let day = moment().hours() >= 4 ? moment().day() : moment().add(-1, 'day').day();
 
     // 判断参数数量
     let args = event.raw_message.split(' ').filter((e) => e);
@@ -93,10 +94,7 @@ export default class DailyMaterial extends BasePlugin {
 
     // 读取图片
     let imagePath = `genshin/resources/images/dailyMaterial/${imageNames[day]}.jpeg`;
-    let imageData = FileUtil.loadFile(imagePath, 'plugins');
-    let base64 = Buffer.from(imageData).toString('base64');
-
-    const msg = [segment.image(base64)];
+    const msg = [segment.image(`file:///${FileUtil.getFilePath(imagePath, 'plugins')}`)];
     await global.bot.sendGroupMsg(event.group_id, msg);
   }
 }
