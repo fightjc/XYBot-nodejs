@@ -1,4 +1,4 @@
-import { Client } from 'oicq';
+import { Client } from 'icqq';
 import FileUtil from '../../utils/file'
 import BaseEvent from './baseEvent';
 

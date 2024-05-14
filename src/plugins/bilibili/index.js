@@ -1,5 +1,5 @@
 import template from 'art-template';
-import { segment } from 'oicq';
+import { segment } from 'icqq';
 
 import BasePlugin from '../../core/plugins/basePlugin';
 import * as apiHelper from './services/apiHelper';

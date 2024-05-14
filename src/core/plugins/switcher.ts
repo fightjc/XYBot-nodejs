@@ -57,7 +57,7 @@ export class Switcher implements SwitcherInterface {
     // 群插件开关
     if (event.message_type == 'group') {
       // 判断命令人权限
-      if (event.sender.user_id != global.config.master && !['owner', 'admin'].includes(event.sender.role)) {
+      if (event.sender.user_id != global.config.data.master && !['owner', 'admin'].includes(event.sender.role)) {
         return false;
       }
 

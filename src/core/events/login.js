@@ -48,7 +48,7 @@ export default class LoginEvent extends BaseEvent {
     });
   }
 
-  /** 滑动验证码登录 */
+  /** 滑动验证码登录，必须使用手机拉动，PC浏览器已经无效 */
   async slider(event) {
     logger.info(`
 ------ ↓↓ 滑动验证链接 ↓↓ ------

@@ -4,27 +4,21 @@ type BotData = {
   number: number,
   password: string,
   master: number,
-  platform: 1 | 2 | 3 | 4 | 5,
+
+  // 1:安卓手机(默认) 2:aPad 3:安卓手表 4:MacOS 5:iad 6:Tim
+  platform: 1 | 2 | 3 | 4 | 5 | 6,
+  // 日志等级，默认info (打印日志会降低性能，若消息量巨大建议修改此参数)
   log_level: 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'mark' | 'off',
+  // 群聊和频道中过滤自己的消息(默认true)
   ignore_self: boolean,
+  // 被风控时是否尝试用分片发送，默认true
   resend: boolean,
+  // 数据存储文件夹，需要可写权限，默认主模块下的data文件夹
   data_dir?: string
 };
 
 export class BotConfig {
-  public readonly number: number;
-  public readonly password: string;
-  public readonly master: number;
-  /** 1:安卓手机(默认) 2:aPad 3:安卓手表 4:MacOS 5:iPad */
-  public readonly platform: 1 | 2 | 3 | 4 | 5;
-  /** 日志等级，默认info (打印日志会降低性能，若消息量巨大建议修改此参数) */
-  public readonly log_level: 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'mark' | 'off';
-  /** 群聊和频道中过滤自己的消息(默认true) */
-  public readonly ignore_self: boolean;
-  /** 被风控时是否尝试用分片发送，默认true */
-  public readonly resend: boolean;
-  /** 数据存储文件夹，需要可写权限，默认主模块下的data文件夹 */
-  public readonly data_dir: string;
+  public readonly data: BotData;
 
   private readonly filename: string = 'bot.yml';
 
@@ -37,17 +31,17 @@ export class BotConfig {
         console.log(`检测到配置文件 ${this.filename} 不存在，准备创建`);
       }
 
-      let data: BotData = {
+      let tempData: BotData = {
         number: 0,
         password: '',
         master: 0,
-        platform: 5,
+        platform: 6,
         log_level: 'info',
         ignore_self: true,
         resend: false
       };
       FileUtil.createDir('config');
-      FileUtil.writeYAML(this.filename, data);
+      FileUtil.writeYAML(this.filename, tempData);
 
       if (global.logger) {
         global.logger.info(`请修改配置文件 ${this.filename} 后再次运行程序`);
@@ -58,16 +52,16 @@ export class BotConfig {
     }
 
     const settings: BotData = FileUtil.loadYAML(this.filename);
-
-    this.number = settings.number;
-    this.password = settings.password;
-    this.master = settings.master;
-    this.platform = settings.platform ?? 5;
-    this.log_level = settings.log_level ?? 'info';
-    this.ignore_self = settings.ignore_self ?? true;
-    this.resend = settings.resend ?? false;
-    
-    this.data_dir = FileUtil.getFilePath('data');
+    this.data = {
+      number: settings.number,
+      password: settings.password,
+      master: settings.master,
+      platform: settings.platform ?? 5,
+      log_level: settings.log_level ?? 'info',
+      ignore_self: settings.ignore_self ?? true,
+      resend: settings.resend ?? false,
+      data_dir: FileUtil.getFilePath('data')
+    };
   }
 }
 

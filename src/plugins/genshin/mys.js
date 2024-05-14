@@ -58,7 +58,7 @@ export default class MYS extends BasePlugin {
 
     // 签到情况发送给主人qq
     if (result) {
-      await global.bot.sendPrivateMsg(global.config.master, result);
+      await global.bot.sendPrivateMsg(global.config.data.master, result);
     }
   }
 }

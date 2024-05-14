@@ -1,6 +1,6 @@
 import template from 'art-template';
 import moment from 'moment';
-import { segment } from 'oicq';
+import { segment } from 'icqq';
 
 import BasePlugin from '../../core/plugins/basePlugin';
 import FileUtil from '../../utils/file';

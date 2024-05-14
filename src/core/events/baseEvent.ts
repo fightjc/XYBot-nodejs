@@ -1,4 +1,4 @@
-import { Client } from 'oicq'
+import { Client } from 'icqq'
 
 type EventData = {
   /** 事件名称前缀 */

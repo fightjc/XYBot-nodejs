@@ -1,12 +1,12 @@
 # XYBot-nodejs
-an oicq-base bot written in Node.js
+an icqq-base bot written in Node.js
 
 ## Development Environment
 | tools | version |
 | :---: | :---: |
 | node | 16.15.0 |
 | npm | 8.5.5 |
-| oicq | ^2.3.1 |
+| icqq | ^0.6.10 |
 
 ## Feature
 1. use [pm2](https://pm2.keymetrics.io/) to manage application run as background job
@@ -23,5 +23,6 @@ an oicq-base bot written in Node.js
 
 ## Reference & Thanks
 - [oicq](https://github.com/takayama-lily/oicq) Tencent QQ Bot Library for Node.js
+- [icqq]()
 - [Yunzai-Bot v3](https://github.com/Le-niao/Yunzai-Bot) 云崽v3.0，原神qq群机器人，通过米游社接口，查询原神游戏信息，快速生成图片返回
 - [AdachiBOT](https://github.com/SilveryStar/Adachi-BOT) A Genshin Impact chatbot in Tencent QQ / 原神Q群助手

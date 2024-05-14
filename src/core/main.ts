@@ -50,7 +50,7 @@ export default class XYBot {
     global.logger.mark('XYBot 启动中...');
 
     // 机器人
-    global.bot = new Bot(global.config.number, global.config);
-    await global.bot.login(global.config.password);
+    global.bot = new Bot(global.config.data);
+    await global.bot.login(global.config.data.number, global.config.data.password);
   }
 }

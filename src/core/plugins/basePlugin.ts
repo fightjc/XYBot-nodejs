@@ -65,7 +65,7 @@ export default class BasePlugin implements BasePluginInterface {
 
     let sender = event['sender'];
     if (sender) {
-      if (sender.user_id == global.config.master) {
+      if (sender.user_id == global.config.data.master) {
         // 所有命令默认对主人QQ开放
         return true;
       }

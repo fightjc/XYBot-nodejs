@@ -48,7 +48,7 @@ export class Logger implements LoggerInterface {
       // 日志出口
       appenders: {
         console, logFile, errFile,
-        qqFilter: { type: 'logLevelFilter', appender: 'logFile', level: 'info', maxLevel: 'mark' }, // 监听oicq模块的日志输出
+        qqFilter: { type: 'logLevelFilter', appender: 'logFile', level: 'info', maxLevel: 'mark' }, // 监听icqq模块的日志输出
       },
       // 模块分类
       categories: {
