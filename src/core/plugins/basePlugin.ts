@@ -43,7 +43,7 @@ interface BasePluginInterface {
 }
 
 export default class BasePlugin implements BasePluginInterface {
-  public readonly data: PluginData;
+  public readonly data: Required<PluginData>;
 
   constructor(data: PluginData) {
     this.data = {

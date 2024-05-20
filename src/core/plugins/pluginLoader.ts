@@ -1,14 +1,20 @@
 import util from 'node:util'
 import { Job, scheduleJob } from 'node-schedule';
+import chokidar from 'chokidar'
 
 import FileUtil from '../../utils/file'
 import BasePlugin from './basePlugin';
 import debouncer, { Debouncer } from './debouncer';
 import switcher, { Switcher } from './switcher';
+import file from '../../utils/file';
 
 type PluginFile = {
+  /** 插件名称 */
   name: string,
-  path: string
+  /** 插件路径 */
+  pluginPath: string,
+  /** 引用路径 */
+  importPath: string
 };
 
 type Plugin = {
@@ -22,9 +28,7 @@ type Task = {
 };
 
 interface PluginLoaderInterface {
-  /**
-   * 加载插件
-   */
+  /** 加载插件 */
   load(): Promise<void>;
   /**
    * 调用插件响应事件
@@ -44,12 +48,14 @@ export class PluginLoader implements PluginLoaderInterface {
   private tasks: Task[];
   private readonly switcher: Switcher;
   private readonly debouncer: Debouncer;
+  private watchFilePaths: string[];
 
   constructor() {
     this.plugins = [];
     this.tasks = [];
     this.switcher = switcher;
     this.debouncer = debouncer;
+    this.watchFilePaths = []; // 监测文件夹改动，防止重复
   }
 
   public async load() {
@@ -123,9 +129,7 @@ export class PluginLoader implements PluginLoaderInterface {
     }
   }
 
-  /**
-   * 加载内部插件
-   */
+  /** 加载内部插件 */
   private async loadInterior() {
     global.logger.mark('开始加载内部插件...');
 
@@ -140,16 +144,14 @@ export class PluginLoader implements PluginLoaderInterface {
     global.logger.mark(`内部插件加载完成！`);
   }
 
-  /**
-   * 加载外部插件
-   */
+  /** 加载外部插件 */
   private async loadExterior() {
     global.logger.mark('开始加载外部插件...');
 
     const files: PluginFile[] = this.getPluginFiles();
     for (let file of files) {
       try {
-        let pluginClass = await import(file.path);
+        let pluginClass = await import(FileUtil.getFilePath(file.importPath));
         if (!pluginClass.default || typeof pluginClass.default !== 'function') {
           continue;
         }
@@ -160,6 +162,9 @@ export class PluginLoader implements PluginLoaderInterface {
           continue;
         }
         await plugin.init();
+
+        // 热更新
+        this.addWatch(file.pluginPath);
 
         // 冷却组件
         this.debouncer.change(plugin.data.name, plugin.data.coolDownTime);
@@ -180,9 +185,7 @@ export class PluginLoader implements PluginLoaderInterface {
     global.logger.mark(`外部插件加载完成！一共加载了${this.plugins.length}个外部插件！`);
   }
 
-  /**
-   * 加载插件定时任务
-   */
+  /** 加载插件定时任务 */
   private async loadScheduleTask() {
     global.logger.mark('开始加载定时任务...');
     let count: number = 0; // 统计定时任务数量
@@ -226,17 +229,106 @@ export class PluginLoader implements PluginLoaderInterface {
   }
 
   /**
-   * 获取需要加载的插件队列
+   * 监听插件热更新
+   * @param path 文件夹路径
    */
-  private getPluginFiles() {
-    const pluginsDir = 'src/plugins';
+  private addWatch(pluginPath: string) {
+    let filePath = FileUtil.getFilePath(pluginPath);
+    if (this.watchFilePaths.includes(filePath)) {
+      return;
+    }
+    this.watchFilePaths.push(filePath);
+    
+    const watcher = chokidar.watch(filePath, { ignoreInitial: true });
+    // 文件新增
+    if (FileUtil.isDirectory(filePath)) {
+      watcher.on("add", async (path, stats) => {
+        global.logger.mark(`检测到插件文件新增: ${path}，准备热更新...`);
+        await this.reloadPlugin(pluginPath);
+        global.logger.mark(`插件文件: ${pluginPath} 热更新完成.`);
+      });
+    }
+    // 文件修改
+    watcher.on("change", async (path, stats) => {
+      global.logger.mark(`检测到插件文件修改: ${path}，准备热更新...`);
+      await this.reloadPlugin(pluginPath);
+      global.logger.mark(`插件文件: ${pluginPath} 热更新完成.`);
+    });
+    // 文件删除
+    watcher.on("unlink", async (path, stats) => {
+      global.logger.mark(`检测到插件文件删除: ${path}，准备热更新...`);
+      if (FileUtil.isExist(path)) {
+        await this.reloadPlugin(pluginPath);
+        global.logger.mark(`插件文件: ${pluginPath} 热更新完成.`);
+      } else {
+        //TODO: 移除插件?
+        watcher.removeAllListeners("change");
+        global.logger.mark(`插件文件: ${pluginPath} 监听热更新已删除.`);
+      }
+    });
+  }
+
+  /**
+   * 重载插件
+   * @param path 文件夹路径
+   */
+  private async reloadPlugin(pluginPath: string) {
+    var path = pluginPath, fileName, isFile = false;
+    let pathComponents = pluginPath.split('/');
+    if (pathComponents[pathComponents.length - 1].indexOf('.') > -1) {
+      // 路径含有文件名
+      isFile = true;
+      fileName = pathComponents.pop();
+      path = pathComponents.join('/');
+    }
+
+    const files: PluginFile[] = this.getPluginFiles(path);
+    for (let file of files) {
+      if (isFile && file.name != fileName) {
+        // 如果传入单文件，重载时只处理制定文件
+        continue;
+      }
+      try {
+        let pluginClass = await import(FileUtil.getFilePath(file.importPath));
+        if (!pluginClass.default || typeof pluginClass.default !== 'function') {
+          continue;
+        }
+
+        // 插件实例化
+        let plugin: BasePlugin = new pluginClass.default();
+        if (!BasePlugin.prototype.isPrototypeOf(plugin)) {
+          continue;
+        }
+        await plugin.init();
+
+        // 冷却组件
+        this.debouncer.change(plugin.data.name, plugin.data.coolDownTime);
+
+        // 替换旧插件
+        var index = this.plugins.findIndex((p) => p.key == plugin.data.name);
+        this.plugins[index] = {
+          key: plugin.data.name,
+          handler: plugin
+        };
+      } catch (err) {
+        global.logger.error(`加载插件文件错误: ${file.name}`);
+        global.logger.error(err);
+      }
+    }
+  }
+
+  /**
+   * 获取需要加载的插件队列
+   * @param path 插件文件夹，默认 src/plugins
+   */
+  private getPluginFiles(path?: string) {
+    const pluginsDir = path ?? 'src/plugins';
     let list: PluginFile[] = [];
 
     const files = FileUtil.getDirFilesWithFileType(pluginsDir);
     for (let file of files) {
       let pluginPath = `${pluginsDir}/${file.name}`;
       let filePath = FileUtil.getFilePath(pluginPath);
-      let importPath = `../../plugins/${file.name}`;
 
       // 单个文件加载
       if (file.isFile()) {
@@ -244,7 +336,8 @@ export class PluginLoader implements PluginLoaderInterface {
           // 只处理js文件
           list.push({
             name: file.name,
-            path: `${importPath}`
+            pluginPath: pluginPath,
+            importPath: pluginPath
           });
         }
         continue;
@@ -254,8 +347,10 @@ export class PluginLoader implements PluginLoaderInterface {
       if (FileUtil.isExist(`${filePath}/index.js`)) {
         list.push({
           name: file.name,
-          path: `${importPath}/index.js`
+          pluginPath: `${pluginPath}`,
+          importPath: `${pluginPath}/index.js`
         });
+
         continue;
       }
 
@@ -265,7 +360,8 @@ export class PluginLoader implements PluginLoaderInterface {
         if (app.isFile() && app.name.endsWith('.js')) {
           list.push({
             name: app.name,
-            path: `${importPath}/${app.name}`
+            pluginPath: `${pluginPath}`,
+            importPath: `${pluginPath}/${app.name}`
           });
         }
       }

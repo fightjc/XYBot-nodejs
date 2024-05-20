@@ -16,6 +16,11 @@ interface FileUtilInterface {
    */
   isExist(path: string): boolean;
   /**
+   * 判断文件路径是否是文件夹
+   * @param path 文件路径
+   */
+  isDirectory(path: string): boolean;
+  /**
    * 获取文件路径
    * @param path 文件路径
    * @param place 预设目录
@@ -92,6 +97,10 @@ class FileUtil implements FileUtilInterface {
     } catch (err) {
       return false;
     }
+  }
+
+  public isDirectory(path: string): boolean {
+    return fs.statSync(path).isDirectory();
   }
 
   public getFilePath(path: string, place: PresetPlace = 'root'): string {

@@ -19,7 +19,7 @@ export function random(min: number, max: number) {
  * 创建子进程执行命令
  * @param cmd 命令
  */
-export async function execSync (cmd: string): Promise<any> {
+export async function execSync(cmd: string): Promise<any> {
   return new Promise((resolve, reject) => {
     require('child_process').exec(cmd, { encoding: 'utf-8' }, (err, stdout, stderr) => {
       resolve({ err, stdout, stderr })

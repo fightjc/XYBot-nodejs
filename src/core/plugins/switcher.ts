@@ -7,6 +7,16 @@ interface SwitcherInterface {
    */
   load(list: string[]): Promise<void>;
   /**
+   * 新增插件
+   * @param name 插件名称
+   */
+  addPlugin(name: string): void;
+  /**
+   * 删除插件
+   * @param name 插件名称
+   */
+  deletePlugin(name: string): void;
+  /**
    * 是否匹配开关插件命令，若是则处理并返回true
    * @param event 事件
    */
@@ -40,6 +50,20 @@ export class Switcher implements SwitcherInterface {
     const groupData = groupConfig.getAll();
     for (let groupId in groupData) {
       await this.setGroupFunc(Number(groupId), groupData[groupId]);
+    }
+  }
+
+  public addPlugin(name: string) {
+    var index = this.pluginNameList.indexOf(name);
+    if (index == -1) {
+      this.pluginNameList.push(name);
+    }
+  }
+
+  public deletePlugin(name: string) {
+    var index = this.pluginNameList.indexOf(name);
+    if (index > -1) {
+      this.pluginNameList.splice(index, 1);
     }
   }
 
