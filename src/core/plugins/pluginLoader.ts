@@ -6,7 +6,6 @@ import FileUtil from '../../utils/file'
 import BasePlugin from './basePlugin';
 import debouncer, { Debouncer } from './debouncer';
 import switcher, { Switcher } from './switcher';
-import file from '../../utils/file';
 
 type PluginFile = {
   /** 插件名称 */
@@ -164,7 +163,7 @@ export class PluginLoader implements PluginLoaderInterface {
         await plugin.init();
 
         // 热更新
-        this.addWatch(file.pluginPath);
+        this.addWatch(plugin.data.name, file.pluginPath);
 
         // 冷却组件
         this.debouncer.change(plugin.data.name, plugin.data.coolDownTime);
@@ -230,9 +229,10 @@ export class PluginLoader implements PluginLoaderInterface {
 
   /**
    * 监听插件热更新
+   * @param key 插件标识
    * @param path 文件夹路径
    */
-  private addWatch(pluginPath: string) {
+  private addWatch(key: string, pluginPath: string) {
     let filePath = FileUtil.getFilePath(pluginPath);
     if (this.watchFilePaths.includes(filePath)) {
       return;
@@ -248,12 +248,18 @@ export class PluginLoader implements PluginLoaderInterface {
         global.logger.mark(`插件文件: ${pluginPath} 热更新完成.`);
       });
     }
+
     // 文件修改
     watcher.on("change", async (path, stats) => {
+      if (path.includes("/config/")) {
+        // 忽略config文件夹改动
+        return;
+      }
       global.logger.mark(`检测到插件文件修改: ${path}，准备热更新...`);
       await this.reloadPlugin(pluginPath);
       global.logger.mark(`插件文件: ${pluginPath} 热更新完成.`);
     });
+
     // 文件删除
     watcher.on("unlink", async (path, stats) => {
       global.logger.mark(`检测到插件文件删除: ${path}，准备热更新...`);
@@ -261,8 +267,17 @@ export class PluginLoader implements PluginLoaderInterface {
         await this.reloadPlugin(pluginPath);
         global.logger.mark(`插件文件: ${pluginPath} 热更新完成.`);
       } else {
-        //TODO: 移除插件?
+        // 移除插件
+        var pluginIndex = this.plugins.findIndex((p) => p.key == key);
+        if (pluginIndex != -1) {
+          delete this.plugins[pluginIndex];
+        }
+        // 移除监听
         watcher.removeAllListeners("change");
+        var pathIndex = this.watchFilePaths.findIndex((p) => p == filePath);
+        if (pathIndex != -1) {
+          this.watchFilePaths.splice(pathIndex, 1);
+        }
         global.logger.mark(`插件文件: ${pluginPath} 监听热更新已删除.`);
       }
     });
@@ -282,6 +297,14 @@ export class PluginLoader implements PluginLoaderInterface {
       path = pathComponents.join('/');
     }
 
+    // 删除旧文件引用缓存
+    var filePath = FileUtil.getFilePath(path);
+    Object.keys(require.cache).forEach((key) => {
+      if (key.includes(filePath)) {
+        delete require.cache[key];
+      }
+    });
+    
     const files: PluginFile[] = this.getPluginFiles(path);
     for (let file of files) {
       if (isFile && file.name != fileName) {
@@ -305,11 +328,64 @@ export class PluginLoader implements PluginLoaderInterface {
         this.debouncer.change(plugin.data.name, plugin.data.coolDownTime);
 
         // 替换旧插件
-        var index = this.plugins.findIndex((p) => p.key == plugin.data.name);
-        this.plugins[index] = {
-          key: plugin.data.name,
-          handler: plugin
-        };
+        var pluginIndex = this.plugins.findIndex((p) => p.key == plugin.data.name);
+        if (pluginIndex != -1) {
+          // 销毁旧插件
+          this.plugins[pluginIndex].handler.destroy();
+          // 替换新插件
+          this.plugins[pluginIndex] = {
+            key: plugin.data.name,
+            handler: plugin
+          };
+        } else {
+          this.plugins.push({
+            key: plugin.data.name,
+            handler: plugin
+          });
+        }
+
+        // 定时任务
+        let tasks = plugin.data.tasks;
+        if (!tasks || tasks.length == 0) {
+          // 没有定时任务不处理
+          continue;
+        }
+        for (let task of tasks) {
+          // 定时方法是否可运行
+          if (!plugin[task.func]) {
+            global.logger.error(`找不到定时方法 ${plugin.data.name} - ${task.func}`);
+            continue;
+          }
+          let job: Job = scheduleJob(task.cron, async () => {
+            try {
+              let res = plugin[task.func]();
+              if (util.types.isPromise(res)) {
+                res = await res;
+              }
+            } catch (err) {
+              global.logger.error(`执行定时方法 ${plugin.data.name} - ${task.func} 出错:`);
+              global.logger.error(err);
+            }
+          });
+          // 替换旧定时任务
+          var taskKey = `${plugin.data.name}.${task.func}`;
+          var taskIndex = this.tasks.findIndex((p) => p.key == taskKey);
+          if (taskIndex != -1) {
+            // 取消已有定时任务
+            this.tasks[taskIndex].handler.cancel();
+            this.tasks[taskIndex].handler = null;
+            // 替换新任务
+            this.tasks[taskIndex] = {
+              key: taskKey,
+              handler: job
+            };
+          } else {
+            this.tasks.push({
+              key: taskKey,
+              handler: job
+            });
+          }
+        }
       } catch (err) {
         global.logger.error(`加载插件文件错误: ${file.name}`);
         global.logger.error(err);

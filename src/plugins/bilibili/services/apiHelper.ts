@@ -143,6 +143,7 @@ export async function getUserDynamic(mid: string, offset?: string): Promise<BILI
     const response = await gets(url, params, headers);
     if (response.code == 0) {
       const cards = response.data.cards;
+      if (cards == null) return [];
       const max_result_count = 3; // 一次最多取最近3条动态
       for (let i = 0; i < cards.length && i < max_result_count; i++) {
         const card = cards[i];

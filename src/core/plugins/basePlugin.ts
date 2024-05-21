@@ -30,9 +30,7 @@ type PluginData = {
 };
 
 interface BasePluginInterface {
-  /**
-   * 初始化
-   */
+  /** 初始化 */
    init(): Promise<void>;
   /**
    * 判断是否有权限响应事件
@@ -40,6 +38,8 @@ interface BasePluginInterface {
    * @param rule 匹配规则
    */
   checkPermission(event: any, rule: RuleData): boolean;
+  /** 销毁 */
+  destroy(): void;
 }
 
 export default class BasePlugin implements BasePluginInterface {
@@ -81,4 +81,6 @@ export default class BasePlugin implements BasePluginInterface {
 
     return false;
   }
+
+  destroy() {}
 }
