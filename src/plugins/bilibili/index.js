@@ -51,6 +51,8 @@ export default class Bilibili extends BasePlugin {
       return;
     }
 
+    const at = segment.at(event.sender.user_id);
+
     // 解析
     if (args[1] == '帮助') {
       await global.bot.sendGroupMsg(event.group_id, usage);
@@ -64,6 +66,7 @@ export default class Bilibili extends BasePlugin {
       let text = `当前已订阅 ${mids.length} 个\n`;
       //TODO: how to get name?
       mids.map((m) => text += `${m}\n`);
+      const msg = [ at, ' ',  text ];
       await global.bot.sendGroupMsg(event.group_id, msg);
     } else if (args[1] == '查询') {
       let text = '为您查询到下面结果:\n';
@@ -76,7 +79,6 @@ export default class Bilibili extends BasePlugin {
       await global.bot.sendGroupMsg(event.group_id, msg);
     } else if (args[1] == 'up') {
       let mid = args[2];
-      const at = segment.at(event.sender.user_id);
       let text = '';
 
       let userInfo = await apiHelper.getUserInfo(mid);
@@ -93,7 +95,6 @@ ${userInfo.name} (${userInfo.mid})
       const msg = [ at, ' ', text ];
       await global.bot.sendGroupMsg(event.group_id, msg);
     } else if (args[1] == '订阅' || args[1] == '退订') {
-      const at = segment.at(event.sender.user_id);
       let subscribe = args[1] == '订阅';
       let mid = args[2];
 
