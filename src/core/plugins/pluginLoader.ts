@@ -239,10 +239,15 @@ export class PluginLoader implements PluginLoaderInterface {
     }
     this.watchFilePaths.push(filePath);
     
+    let ignoreFolder = ['/config/', '/resources/']; //NOTICE: 忽略配置文件和资源文件
     const watcher = chokidar.watch(filePath, { ignoreInitial: true });
+
     // 文件新增
     if (FileUtil.isDirectory(filePath)) {
       watcher.on("add", async (path, stats) => {
+        if (ignoreFolder.filter((ig) => path.includes(ig)).length > 0) {
+          return;
+        }
         global.logger.mark(`检测到插件文件新增: ${path}，准备热更新...`);
         await this.reloadPlugin(pluginPath);
         global.logger.mark(`插件文件: ${pluginPath} 热更新完成.`);
@@ -251,8 +256,7 @@ export class PluginLoader implements PluginLoaderInterface {
 
     // 文件修改
     watcher.on("change", async (path, stats) => {
-      if (path.includes("/config/")) {
-        // 忽略config文件夹改动
+      if (ignoreFolder.filter((ig) => path.includes(ig)).length > 0) {
         return;
       }
       global.logger.mark(`检测到插件文件修改: ${path}，准备热更新...`);
@@ -262,15 +266,18 @@ export class PluginLoader implements PluginLoaderInterface {
 
     // 文件删除
     watcher.on("unlink", async (path, stats) => {
+      if (ignoreFolder.filter((ig) => path.includes(ig)).length > 0) {
+        return;
+      }
       global.logger.mark(`检测到插件文件删除: ${path}，准备热更新...`);
-      if (FileUtil.isExist(path)) {
+      if (FileUtil.isExist(filePath)) {
         await this.reloadPlugin(pluginPath);
         global.logger.mark(`插件文件: ${pluginPath} 热更新完成.`);
       } else {
         // 移除插件
         var pluginIndex = this.plugins.findIndex((p) => p.key == key);
         if (pluginIndex != -1) {
-          delete this.plugins[pluginIndex];
+          this.plugins.splice(pluginIndex, 1);
         }
         // 移除监听
         watcher.removeAllListeners("change");
